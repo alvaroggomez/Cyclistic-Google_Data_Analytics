@@ -64,7 +64,7 @@ Descripción del tratamiento y limpieza de los datos para prepararlos para el an
 La herramienta usada para manipular los datos es RStudio.  
 
 ### Bibliotecas  
-Durante esta fase se utilizaron varias bibliotecas:
+Durante esta fase se utilizaron las siguientes bibliotecas:
 ```r
 # colección de paquetes para importar, manipular y visualizar datos
 install.packages("tidyverse")
@@ -80,7 +80,7 @@ install.packages("dplyr")
 library("dplyr")
 ```
 ### Lectura  
-Se importaron los 12 archivos mensuales en formato .csv y se unieron en un único dataframe para facilitar el análisis global.  
+Leemos los 12 archivos .csv con los datos correspondientes a cada mes y los asignamos a un objeto. Este objeto será un dataframe.
 ```r
 trips_202407 <- read.csv("202407-divvy-tripdata.csv")
 trips_202408 <- read.csv("202408-divvy-tripdata.csv")
@@ -95,36 +95,44 @@ trips_202504 <- read.csv("202504-divvy-tripdata.csv")
 trips_202505 <- read.csv("202505-divvy-tripdata.csv")
 trips_202506 <- read.csv("202506-divvy-tripdata.csv")
 ```
+### Unión 
+Lo ideal es trabajar con un único dataset, por lo que procederemos a unificar todos en uno solo. Sin embargo, antes será necesario comprobar que compartan las mismas columnas y tipos de datos.  
+Primero, verificamos que los 12 dataframes tengan exactamente las mismas columnas, en el mismo orden.
 ```r
+# Guardar los nombres de las columnas de los conjuntos de datos
 column_names <- list(
     df1 = names(trips_202407), df2 = names(trips_202408), df3 = names(trips_202409), df4 = names(trips_202410),
     df5 = names(trips_202411), df6 = names(trips_202412), df7 = names(trips_202501), df8 = names(trips_202502),
     df9 = names(trips_202503), df10 = names(trips_202504), df11 = names(trips_202505), df12 = names(trips_202506)
 )
-
+# Comprobar si todos tienen exactamente los mismos nombres de columna y en el mismo orden
 all_same <- all(sapply(column_names, function(x) identical(x, column_names[[1]])))
-
+# Si todos tienen las mismas columnas y en el mismo orden, devolverá TRUE
 print(all_same)
-
 ```
+Ahora toca comprobar para cada columna que contenga el mismo tipo de dato en cada archivo.
 ```r
+# Guardar en una lista el tipo de cada columna de cada data frame
 column_types <- list(
     df1 = sapply(trips_202407, class), df2 = sapply(trips_202408, class), df3 = sapply(trips_202409, class),
     df4 = sapply(trips_202410, class), df5 = sapply(trips_202411, class), df6 = sapply(trips_202412, class),
     df7 = sapply(trips_202501, class), df8 = sapply(trips_202502, class), df9 = sapply(trips_202503, class),
     df10 = sapply(trips_202504, class), df11 = sapply(trips_202505, class), df12 = sapply(trips_202506, class)
 )
-
+# Comprobar si todos las columnas son del mismo tipo
 all_types_same <- all(sapply(column_types, function(x) identical(x, column_types$df1)))
-
+# Devolverá TRUE si todos los data frames tienen exactamente los mismos tipos de columnas
 print(all_types_same)
 ```
+Una vez hemos comprobado que todos los conjuntos de datos tienen las mismas columnas, en el mismo orden y con el mismo tipo de datos, procedemos a unirlos en un único data frame.
 ```r
 trips_202407_202506 <- bind_rows(
     trips_202407,trips_202408,trips_202409,trips_202410,trips_202411,trips_202412,
     trips_202501,trips_202502,trips_202503,trips_202504,trips_202505,trips_202506
 )
 ```
+### Limpieza  
+
 ```r
 trips_202407_202506 <- trips_202407_202506 %>% select(-c(start_lat, start_lng, end_lat, end_lng))
 ```
