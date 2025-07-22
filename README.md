@@ -51,7 +51,7 @@ Descripción de los datos recopilados, su origen, estructura y organización
 Se utilizaron datos históricos de viajes en bicicleta del sistema [Divvy](https://divvy-tripdata.s3.amazonaws.com/index.html), originalmente recopilados por Motivate International Inc. y actualmente gestionados por Lyft Bikes and Scooters, LLC.  
 Los datos corresponden al periodo entre **julio de 2024 y junio de 2025**. Esta información es pública, anónima y de libre uso, con restricciones relacionadas a la privacidad de los usuarios.  
 ### Estructura de los datos  
-Los datos están organizados en archivos mensuales en formato .csv, cada uno de los cuales contiene registros individuales de cada viaje: id del viaje, tipo de bicicleta (clasica, docked o eléctrica), fecha y hora de inicio y fin, nombre, identificador y coordenadas de la estación de partida y de llegada, y tipo de usuario (casual o miembro).  
+Los datos están organizados en archivos mensuales en formato .csv, cada uno de los cuales contiene registros individuales de cada viaje: id del viaje, tipo de bicicleta (clasica,eléctrica o scooter eléctrica), fecha y hora de inicio y fin, nombre, identificador y coordenadas de la estación de partida y de llegada, y tipo de usuario (casual o miembro).  
 ### Consideraciones sobre privacidad y licencia  
 Los datos son públicos y anónimos, proporcionados bajo una licencia que permite su uso y análisis para fines legítimos. Está prohibido identificar usuarios o vender los datos como conjunto independiente. Para más detalles, consultar la [licencia](https://divvybikes.com/data-license-agreement).  
 ### Verificación e integridad
@@ -132,6 +132,54 @@ trips_202407_202506 <- bind_rows(
 )
 ```
 ### Limpieza  
+Vamos a comprobar si los valores de la columna ride_id son únicos.  
+Para saber si no hay un id repetido, contaremos el número de valores distintos, si es igual al número de filas (5.597.030), entonces ya contamos con un identificador único para cada fila del dataset.
+En ese caso, no es necesario generar un nuevo identificador, ya que el campo id cumple esa función correctamente.
+```r
+trips_202407_202506 %>% summarise(valores_distintos = n_distinct(ride_id))
+# Salida
+valores_distintos: 5597030
+```
+Se analizarán los valores únicos de algunas columnas para detectar posibles errores tipográficos, entradas inconsistentes o categorías no esperadas.
+```r
+# Comprobar que solo haya 3 tipos de bici (electric, classic y scooter)
+trips_202407_202506 %>% distinct(rideable_type)
+# Salida        
+1 electric_bike   
+2 classic_bike    
+3 electric_scooter
+
+# Comprobar que solo haya 2 tipos de usuario (member y casual)
+trips_202407_202506 %>% distinct(member_casual)
+# Salida      
+1 casual       
+2 member
+```
+NOTA: No parece haber ningún valor atípico en las fechas y nombres de estaciones pero si hay estaciones que en determinada fecha tienen un asterisco al final de su nombre (ejemplo: Burling St & Diversey Pkwy/Burling St & Diversey Pkwy* ). Si se quiere hacer un análisis por estación, hay que tener esto en cuenta ya que si no se contará como dos estaciones distintas.  
+También anotar que una misma estación puede tener más de un id distinto, esto se debe a que se han cambiado los ids para algunas de ellas. Por ejemplo, para Yates Blvd & 93rd St tenemos el id 20237 y CHI00856.  
+
+### Añadir
+Para facilitar el análisis, se crearán unas columnas para indicar el día, mes, año y duración del viaje. 
+```r
+# Añade columna donde se guarda solo la fecha, sin la hora
+trips_202407_202506$date <- as.Date(trips_202407_202506$started_at)
+# Columna para el mes
+trips_202407_202506$month <- format(as.Date(trips_202407_202506$date), "%m")
+# Columna para guardar el día
+trips_202407_202506$day <- format(as.Date(trips_202407_202506$date), "%d")
+# Columna donde se guarda el año
+trips_202407_202506$year <- format(as.Date(trips_202407_202506$date), "%Y")
+# Columna para guardar el día de la semana
+trips_202407_202506$day_of_week <- format(as.Date(trips_202407_202506$date), "%A")
+
+# Añadir una variable para la duración del viaje en minutos
+trips_202407_202506$ride_length <- difftime(trips_202407_202506$ended_at,trips_202407_202506$started_at,units="mins")
+# Convertimos el atributo creado a un valor numérico y lo redondeamos a 3 decimales
+trips_202407_202506$ride_length <- as.numeric(as.character((trips_202407_202506$ride_length)))
+trips_202407_202506$ride_length <- round(trips_202407_202506$ride_length, 3)
+```
+
+
 
 ```r
 trips_202407_202506 <- trips_202407_202506 %>% select(-c(start_lat, start_lng, end_lat, end_lng))
