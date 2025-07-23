@@ -178,9 +178,35 @@ trips_202407_202506$ride_length <- difftime(trips_202407_202506$ended_at,trips_2
 trips_202407_202506$ride_length <- as.numeric(as.character((trips_202407_202506$ride_length)))
 trips_202407_202506$ride_length <- round(trips_202407_202506$ride_length, 3)
 ```
+### Limpieza  
+Es fundamental asegurarse de que los datos sean consistentes y estén libres de errores que puedan afectar los resultados. Primero, se va a identificar las columnas con valores nulos.
+```r
+colSums(is.na(trips_202407_202506))
+# Resultado
+           ride_id      rideable_type         started_at           ended_at start_station_name   start_station_id 
+                 0                  0                  0                  0            1088824            1088824 
+  end_station_name     end_station_id          start_lat          start_lng            end_lat            end_lng 
+           1119485            1119485                  0                  0               6030               6030 
+     member_casual               date              month                day               year        day_of_week 
+                 0                  0                  0                  0                  0                  0 
+       ride_length 
+                 0 
+```
+Como se puede apreciar, existen numerosos registros que no contienen el nombre de la estación. Sin embargo, no se eliminarán, ya que todavía pueden ser útiles gracias a que conservan las coordenadas geográficas asociadas. No obstante, es importante recordar esto a la hora de analizar, ya que dependiendo en según que tipo de análisis será necesario especificar que no tenga en cuenta los valores nulos.  
+Por otro lado, se identificaron algunos registros en los que las coordenadas de la estación final están ausentes; para este caso, averiguaremos primero si carecen también de nombre de estación y de ser así, entonces serán eliminados.
+```r
+# Averiguar si hay alguna fila con nombre de estación pero sin coordenadas
+sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end_lat))
+# Resultado
+[1] 0
 
+# No hay, por tanto procedemos a borrar las filas con valores nulos para las columnas end_lat y end_lng
+trips_202407_202506 <-  trips_202407_202506[!is.na(trips_202407_202506$end_lat), ]
+```
 
+```r
 
+```
 ```r
 trips_202407_202506 <- trips_202407_202506 %>% select(-c(start_lat, start_lng, end_lat, end_lng))
 ```
