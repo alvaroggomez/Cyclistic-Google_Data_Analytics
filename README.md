@@ -203,10 +203,43 @@ sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end
 # No hay, por tanto procedemos a borrar las filas con valores nulos para las columnas end_lat y end_lng
 trips_202407_202506 <-  trips_202407_202506[!is.na(trips_202407_202506$end_lat), ]
 ```
-
+Se detectaron que algunas estaciones aparecen registradas con dos variantes de nombre: una con un asterisco (*) y otra sin él. Esto generará duplicados en el análisis, ya que R las trata como estaciones diferentes aunque correspondan a la misma ubicación física.  
+Para evitar esta confusión y unificar la información, se procederá a identificar todas las estaciones cuyos nombres terminan con un asterisco, verificar si existe una versión sin asterisco asociada al mismo id de estación, eliminar el asterisco para consolidar todas las variantes en una sola representación estándar.
 ```r
+# obtener los IDs con nombre que termina en asterisco
+ids_con_asterisco <- trips_202407_202506 %>%
+  filter(grepl("\\*$", start_station_name)) %>%
+  distinct(start_station_id) %>%
+  pull(start_station_id)
 
+# Mostrar todos los nombres asociados
+nombres_por_id <- trips_202407_202506 %>%
+  filter(start_station_id %in% ids_con_asterisco) %>%
+  distinct(start_station_id, start_station_name) %>%
+  arrange(start_station_id)
+
+# Mostrar resultado
+print(nombres_por_id)
+
+   start_station_id start_station_name           
+   <chr>            <chr>                        
+ 1 13017            Franklin St & Chicago Ave    
+ 2 13017            Franklin St & Chicago Ave*   
+ 3 13154            Sheffield Ave & Kingsbury St 
+ 4 13154            Sheffield Ave & Kingsbury St*
+ 5 13192            Halsted St & Dickens Ave     
+ 6 13192            Halsted St & Dickens Ave*    
+ 7 13208            Burling St & Diversey Pkwy   
+ 8 13208            Burling St & Diversey Pkwy*  
 ```
+Como se ha observado, algunas estaciones presentan dos variantes en su nombre, ambas asociadas al mismo identificador. Por lo tanto, se procederá a eliminar el asterisco del nombre para unificar las denominaciones.  
+```r
+trips_202407_202506$start_station_name <- gsub("\\*$", "", trips_202407_202506$start_station_name)
+trips_202407_202506$end_station_name <- gsub("\\*$", "", trips_202407_202506$end_station_name)
+```
+También se ha observado que algunos IDs están asociados a más de una estación. En ciertos casos, se debe a pequeñas variaciones en la nomenclatura del nombre de la estación, es decir, probablemente sea la misma; sin embargo, en otros, las diferencias en los nombres son mayores o incluso completamente distintas. Los cambios en los nombres asociados a un mismo ID pueden deberse a múltiples causas. Por ejemplo, dado que el dataset reúne varios conjuntos de datos temporales, es posible que un mismo ID corresponda a una estación en un mes y a otra diferente en otro período. Debido a esta incertidumbre, mo se realizarán más modificaciones en los nombres de estaciones.
+
+&////completar nombre de estaciones vacias si solo hay un nombre asociado a ese id
 ```r
 trips_202407_202506 <- trips_202407_202506 %>% select(-c(start_lat, start_lng, end_lat, end_lng))
 ```
