@@ -192,8 +192,8 @@ colSums(is.na(trips_202407_202506))
        ride_length 
                  0 
 ```
-Como se puede apreciar, existen numerosos registros que no contienen el nombre de la estación. Sin embargo, no se eliminarán, ya que todavía pueden ser útiles gracias a que conservan las coordenadas geográficas asociadas. No obstante, es importante recordar esto a la hora de analizar, ya que dependiendo en según que tipo de análisis será necesario especificar que no tenga en cuenta los valores nulos.  
-Por otro lado, se identificaron algunos registros en los que las coordenadas de la estación final están ausentes; para este caso, averiguaremos primero si carecen también de nombre de estación y de ser así, entonces serán eliminados.
+Como se puede apreciar, existen numerosos registros que no contienen el nombre de la estación. 
+Por un lado, hay algunos registros en los que las coordenadas de la estación final (end_lat y end_lng) están ausentes. Se podría intentar completar los datos faltantes a partir de los nombres de las estaciones, por lo que primero verificaremos si también carecen de dicho nombre. En caso de no tenerlo, los registros serán eliminados.
 ```r
 # Averiguar si hay alguna fila con nombre de estación pero sin coordenadas
 sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end_lat))
@@ -202,6 +202,16 @@ sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end
 
 # No hay, por tanto procedemos a borrar las filas con valores nulos para las columnas end_lat y end_lng
 trips_202407_202506 <-  trips_202407_202506[!is.na(trips_202407_202506$end_lat), ]
+
+```
+En el caso de los viajes que no cuentan con información en los campos de nombres e id de estaciones (tanto de inicio como de fin), se optará por eliminarlos del conjunto principal de datos, previamente almacenándolos en un dataset aparte por si en el futuro se decida intentar su recuperación.  
+La única opción para completar esta información sería a partir de las coordenadas geográficas. No obstante, esta tarea resulta compleja, ya que las coordenadas no son completamente consistentes: no todos los viajes asociados a una misma estación comparten exactamente los mismos valores de latitud y longitud, lo que dificulta su identificación automática.
+```r
+# Guardar los registros con campos vacíos en un dataset
+viajes_incompletos <- trips_202407_202506 %>% 
+  filter(is.na(start_station_name) | is.na(end_station_name))
+# Eliminar las filas con valores vacíos del dataset principal
+trips_202407_202506 <- drop_na(trips_202407_202506) 
 ```
 Se detectaron que algunas estaciones aparecen registradas con dos variantes de nombre: una con un asterisco (*) y otra sin él. Esto generará duplicados en el análisis, ya que R las trata como estaciones diferentes aunque correspondan a la misma ubicación física.  
 Para evitar esta confusión y unificar la información, se procederá a identificar todas las estaciones cuyos nombres terminan con un asterisco, verificar si existe una versión sin asterisco asociada al mismo id de estación, eliminar el asterisco para consolidar todas las variantes en una sola representación estándar.
@@ -237,9 +247,16 @@ Como se ha observado, algunas estaciones presentan dos variantes en su nombre, a
 trips_202407_202506$start_station_name <- gsub("\\*$", "", trips_202407_202506$start_station_name)
 trips_202407_202506$end_station_name <- gsub("\\*$", "", trips_202407_202506$end_station_name)
 ```
-También se ha observado que algunos IDs están asociados a más de una estación. En ciertos casos, se debe a pequeñas variaciones en la nomenclatura del nombre de la estación, es decir, probablemente sea la misma; sin embargo, en otros, las diferencias en los nombres son mayores o incluso completamente distintas. Los cambios en los nombres asociados a un mismo ID pueden deberse a múltiples causas. Por ejemplo, dado que el dataset reúne varios conjuntos de datos temporales, es posible que un mismo ID corresponda a una estación en un mes y a otra diferente en otro período. Debido a esta incertidumbre, mo se realizarán más modificaciones en los nombres de estaciones.
+También se ha observado que algunos IDs están asociados a más de una estación. En ciertos casos, se debe a pequeñas variaciones en la nomenclatura del nombre de la estación, es decir, probablemente sea la misma; sin embargo, en otros, las diferencias en los nombres son mayores o incluso completamente distintas. Los cambios en los nombres asociados a un mismo ID pueden deberse a múltiples causas. Por ejemplo, dado que el dataset reúne varios conjuntos de datos temporales, es posible que un mismo ID corresponda a una estación en un mes y a otra diferente en otro período. Debido a esta incertidumbre, mo se realizarán más modificaciones en los nombres de estaciones.  
 
-&////completar nombre de estaciones vacias si solo hay un nombre asociado a ese id
+Ahora se procederá a eliminar aquellos viajes que presentan errores en su duración, tales como aquellos con duración negativa, así como los viajes cortos — de menos de 2 minutos — que no se dirigen a una estación distinta. Se entiende que estos casos corresponden a viajes cancelados, devoluciones de bicicleta o cambios debido a algún fallo.
+```r
+trips_202407_202506 <- trips_202407_202506 %>%
+     filter(ride_length >= 0, !(ride_length < 2 & start_station_name == end_station_name))
+```
+También se verificó la existencia de viajes con duraciones extremadamente largas, se encontró que solo unos pocos exceden un día completo (1,440 minutos), y lo hacen por un margen muy reducido. Por lo tanto, se considera que estos casos no justifican su eliminación del conjunto de datos.
+
+
 ```r
 trips_202407_202506 <- trips_202407_202506 %>% select(-c(start_lat, start_lng, end_lat, end_lng))
 ```
