@@ -192,8 +192,7 @@ colSums(is.na(trips_202407_202506))
        ride_length 
                  0 
 ```
-Como se puede apreciar, existen numerosos registros que no contienen el nombre de la estación. 
-Por un lado, hay algunos registros en los que las coordenadas de la estación final (end_lat y end_lng) están ausentes. Se podría intentar completar los datos faltantes a partir de los nombres de las estaciones, por lo que primero verificaremos si también carecen de dicho nombre. En caso de no tenerlo, los registros serán eliminados.
+Como se puede apreciar, hay algunos registros en los que las coordenadas de la estación final (end_lat y end_lng) están ausentes, concretamente 6030 registros. Se podría intentar completar los datos faltantes a partir de los nombres de las estaciones, por lo que primero verificaremos si también carecen de dicho nombre. En caso de no tenerlo, los registros serán eliminados.
 ```r
 # Averiguar si hay alguna fila con nombre de estación pero sin coordenadas
 sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end_lat))
@@ -214,7 +213,7 @@ viajes_incompletos <- trips_202407_202506 %>%
 trips_202407_202506 <- drop_na(trips_202407_202506) 
 ```
 Se detectaron que algunas estaciones aparecen registradas con dos variantes de nombre: una con un asterisco (*) y otra sin él. Esto generará duplicados en el análisis, ya que R las trata como estaciones diferentes aunque correspondan a la misma ubicación física.  
-Para evitar esta confusión y unificar la información, se procederá a identificar todas las estaciones cuyos nombres terminan con un asterisco, verificar si existe una versión sin asterisco asociada al mismo id de estación, eliminar el asterisco para consolidar todas las variantes en una sola representación estándar.
+Para evitar esta confusión y unificar la información, se procederá a identificar todas las estaciones cuyos nombres terminan con un asterisco, verificar si existe una versión sin asterisco asociada al mismo id de estación y eliminar el asterisco para consolidar todas las variantes en una sola representación estándar.
 ```r
 # obtener los IDs con nombre que termina en asterisco
 ids_con_asterisco <- trips_202407_202506 %>%
@@ -241,9 +240,9 @@ print(nombres_por_id)
  6 13192            Halsted St & Dickens Ave*    
  7 13208            Burling St & Diversey Pkwy   
  8 13208            Burling St & Diversey Pkwy*  
-```
-Como se ha observado, algunas estaciones presentan dos variantes en su nombre, ambas asociadas al mismo identificador. Por lo tanto, se procederá a eliminar el asterisco del nombre para unificar las denominaciones.  
-```r
+
+# algunas estaciones presentan dos variantes en su nombre, ambas asociadas al mismo identificador
+# Se procederá a eliminar el asterisco del nombre para unificar las denominaciones.  
 trips_202407_202506$start_station_name <- gsub("\\*$", "", trips_202407_202506$start_station_name)
 trips_202407_202506$end_station_name <- gsub("\\*$", "", trips_202407_202506$end_station_name)
 ```
@@ -258,11 +257,15 @@ También se verificó la existencia de viajes con duraciones extremadamente larg
 
 
 ```r
-trips_202407_202506 <- trips_202407_202506 %>% select(-c(start_lat, start_lng, end_lat, end_lng))
+
 ```
 ```r
 library(skimr)
 skim(trips_202407_202506)
+
+install.packages("DataExplorer")
+library(DataExplorer)
+create_report(df)  
 ```
 ```r
 
