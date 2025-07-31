@@ -78,6 +78,9 @@ library("janitor")
 # dplyr: parte de tidyverse, permite filtrar, seleccionar y transformar datos fácilmente
 install.packages("dplyr")
 library("dplyr")
+# summarytools: genera resúmenes estadísticos detallados y tablas descriptivas de forma rápida
+install.packages("summarytools")
+library("summarytools")
 ```
 ### Lectura  
 Leemos los 12 archivos .csv con los datos correspondientes a cada mes y los asignamos a un objeto. Este objeto será un dataframe.
@@ -131,33 +134,6 @@ trips_202407_202506 <- bind_rows(
     trips_202501,trips_202502,trips_202503,trips_202504,trips_202505,trips_202506
 )
 ```
-### Limpieza  
-Vamos a comprobar si los valores de la columna ride_id son únicos.  
-Para saber si no hay un id repetido, contaremos el número de valores distintos, si es igual al número de filas (5.597.030), entonces ya contamos con un identificador único para cada fila del dataset.
-En ese caso, no es necesario generar un nuevo identificador, ya que el campo id cumple esa función correctamente.
-```r
-trips_202407_202506 %>% summarise(valores_distintos = n_distinct(ride_id))
-# Salida
-valores_distintos: 5597030
-```
-Se analizarán los valores únicos de algunas columnas para detectar posibles errores tipográficos, entradas inconsistentes o categorías no esperadas.
-```r
-# Comprobar que solo haya 3 tipos de bici (electric, classic y scooter)
-trips_202407_202506 %>% distinct(rideable_type)
-# Salida        
-1 electric_bike   
-2 classic_bike    
-3 electric_scooter
-
-# Comprobar que solo haya 2 tipos de usuario (member y casual)
-trips_202407_202506 %>% distinct(member_casual)
-# Salida      
-1 casual       
-2 member
-```
-NOTA: No parece haber ningún valor atípico en las fechas y nombres de estaciones pero si hay estaciones que en determinada fecha tienen un asterisco al final de su nombre (ejemplo: Burling St & Diversey Pkwy/Burling St & Diversey Pkwy* ). Si se quiere hacer un análisis por estación, hay que tener esto en cuenta ya que si no se contará como dos estaciones distintas.  
-También anotar que una misma estación puede tener más de un id distinto, esto se debe a que se han cambiado los ids para algunas de ellas. Por ejemplo, para Yates Blvd & 93rd St tenemos el id 20237 y CHI00856.  
-
 ### Añadir
 Para facilitar el análisis, se crearán unas columnas para indicar el día, mes, año y duración del viaje. 
 ```r
@@ -179,6 +155,29 @@ trips_202407_202506$ride_length <- as.numeric(as.character((trips_202407_202506$
 trips_202407_202506$ride_length <- round(trips_202407_202506$ride_length, 3)
 ```
 ### Limpieza  
+Vamos a comprobar si los valores de la columna ride_id son únicos.  
+Para saber si no hay un id repetido, contaremos el número de valores distintos, si es igual al número de filas (5.597.030), entonces ya contamos con un identificador único para cada fila del dataset.
+En ese caso, no será necesario generar un nuevo identificador, ya que el campo id cumple esa función correctamente.
+```r
+trips_202407_202506 %>% summarise(valores_distintos = n_distinct(ride_id))
+# Salida
+valores_distintos: 5597030
+```
+Se analizarán los valores únicos de algunas columnas para detectar posibles errores tipográficos, entradas inconsistentes o categorías no esperadas.
+```r
+# Comprobar que solo haya 3 tipos de bici (electric, classic y scooter)
+trips_202407_202506 %>% distinct(rideable_type)
+# Salida        
+1 electric_bike   
+2 classic_bike    
+3 electric_scooter
+
+# Comprobar que solo haya 2 tipos de usuario (member y casual)
+trips_202407_202506 %>% distinct(member_casual)
+# Salida      
+1 casual       
+2 member
+```
 Es fundamental asegurarse de que los datos sean consistentes y estén libres de errores que puedan afectar los resultados. Primero, se va a identificar las columnas con valores nulos.
 ```r
 colSums(is.na(trips_202407_202506))
@@ -246,16 +245,25 @@ print(nombres_por_id)
 trips_202407_202506$start_station_name <- gsub("\\*$", "", trips_202407_202506$start_station_name)
 trips_202407_202506$end_station_name <- gsub("\\*$", "", trips_202407_202506$end_station_name)
 ```
-También se ha observado que algunos IDs están asociados a más de una estación. En ciertos casos, se debe a pequeñas variaciones en la nomenclatura del nombre de la estación, es decir, probablemente sea la misma; sin embargo, en otros, las diferencias en los nombres son mayores o incluso completamente distintas. Los cambios en los nombres asociados a un mismo ID pueden deberse a múltiples causas. Por ejemplo, dado que el dataset reúne varios conjuntos de datos temporales, es posible que un mismo ID corresponda a una estación en un mes y a otra diferente en otro período. Debido a esta incertidumbre, mo se realizarán más modificaciones en los nombres de estaciones.  
-
+También se ha observado que algunos IDs están asociados a más de una estación. En ciertos casos, se debe a pequeñas variaciones en la nomenclatura del nombre de la estación, es decir, probablemente sea la misma; sin embargo, en otros, las diferencias en los nombres son mayores o incluso completamente distintas. Los cambios en los nombres asociados a un mismo ID pueden deberse a múltiples causas. Por ejemplo, dado que el dataset reúne varios conjuntos de datos temporales, es posible que un mismo ID corresponda a una estación en un mes y a otra diferente en otro período. Debido a esta incertidumbre, no se realizarán más modificaciones en los nombres de estaciones.      
+NOTA: Anotar que una misma estación puede tener más de un id distinto, esto se debe a que se han cambiado los ids para algunas de ellas. Por ejemplo, para Yates Blvd & 93rd St tenemos el id 20237 y CHI00856.  
+    
 Ahora se procederá a eliminar aquellos viajes que presentan errores en su duración, tales como aquellos con duración negativa, así como los viajes cortos — de menos de 2 minutos — que no se dirigen a una estación distinta. Se entiende que estos casos corresponden a viajes cancelados, devoluciones de bicicleta o cambios debido a algún fallo.
 ```r
 trips_202407_202506 <- trips_202407_202506 %>%
      filter(ride_length >= 0, !(ride_length < 2 & start_station_name == end_station_name))
 ```
-También se verificó la existencia de viajes con duraciones extremadamente largas, se encontró que solo unos pocos exceden un día completo (1,440 minutos), y lo hacen por un margen muy reducido. Por lo tanto, se considera que estos casos no justifican su eliminación del conjunto de datos.
+Se verificó la existencia de viajes con duraciones extremadamente largas, se encontró que solo unos pocos exceden un día completo (1,440 minutos), y lo hacen por un margen muy reducido. Por lo tanto, se considera que estos casos no justifican su eliminación del conjunto de datos.<br><br>     
 
-![Resumen del dataset](img/capturaResumen1.png)
+Tras completar el proceso de limpieza y transformación, se obtiene un conjunto de datos estructurado y listo para el análisis. A continuación, se presenta un resumen descriptivo de las variables incluidas en el dataset final, que permite verificar la integridad, el tipo de datos y la distribución general de los valores.  
+
+Este resumen ha sido generado utilizando la función dfSummary() del paquete summarytools, que proporciona una visión rápida y clara del contenido del dataset.
+![Resumen del dataset](dfSummary.png)
+
+## 📈 Analizar 
+A través de estadísticas descriptivas y visualizaciones, se examinan aspectos como la duración de los viajes, los patrones de uso por día de la semana, y las rutas más comunes, con el fin de entender mejor cómo y cuándo utilizan el servicio ambos tipos de usuarios.
+
+
 ```r
 
 ```
