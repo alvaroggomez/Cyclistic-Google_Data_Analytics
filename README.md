@@ -255,7 +255,7 @@ trips_202407_202506 <- trips_202407_202506 %>%
 ```
 También se verificó la existencia de viajes con duraciones extremadamente largas, se encontró que solo unos pocos exceden un día completo (1,440 minutos), y lo hacen por un margen muy reducido. Por lo tanto, se considera que estos casos no justifican su eliminación del conjunto de datos.
 
-
+![Resumen del dataset](img/capturaResumen1.png)
 ```r
 
 ```
