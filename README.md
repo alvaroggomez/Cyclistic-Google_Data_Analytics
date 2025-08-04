@@ -265,8 +265,31 @@ A través de estadísticas descriptivas y visualizaciones, se examinan aspectos 
 
 
 ```r
+#Duracion media de viaje por tipo de usuario
+trips_202407_202506 %>% 
+  group_by(member_casual) %>% 
+  summarise(avg_ride_length = mean(ride_length)) %>% 
+  ggplot(aes(x = member_casual, y = avg_ride_length, fill = member_casual)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  geom_text(aes(label = round(avg_ride_length, 1)), vjust = -0.5, size = 5) +
+  labs(title = "Duración promedio de viaje por tipo de usuario",
+       subtitle = "Desde julio de 2024 hasta junio de 2025", 
+       x = "Tipo de usuario", y = "Duracion media (minutos)") +
+  theme_minimal() + 
+  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot")
+```
+![Resumen del dataset](graphs/duracion_viaje_por_usuario.png)
+<img src="graphs/duracion_viaje_por_usuario.png" width="400"/>
+```r
 
 ```
+```r
+```
+```r
+```
+```r
+```
+
 ```r
 library(skimr)
 skim(trips_202407_202506)
