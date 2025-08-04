@@ -272,16 +272,44 @@ trips_202407_202506 %>%
   ggplot(aes(x = member_casual, y = avg_ride_length, fill = member_casual)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   geom_text(aes(label = round(avg_ride_length, 1)), vjust = -0.5, size = 5) +
-  labs(title = "Duración promedio de viaje por tipo de usuario",
+  labs(
+    title = "Duración promedio de viaje por tipo de usuario",
        subtitle = "Desde julio de 2024 hasta junio de 2025", 
        x = "Tipo de usuario", y = "Duracion media (minutos)") +
   theme_minimal() + 
-  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot")
+  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+        plot.background = element_rect(fill = "aliceblue"),
+        panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+        panel.grid.major.x = element_blank())
 ```
 ![Resumen del dataset](graphs/duracion_viaje_por_usuario.png)
-<img src="graphs/duracion_viaje_por_usuario.png" width="400"/>
 ```r
+#Numero total viajes por dia de la semana
+viajes_por_dia <- trips_202407_202506%>%
+  group_by(member_casual, day_of_week) %>%
+  summarise(total_viajes = n(), .groups = "drop")
 
+viajes_por_dia$day_of_week <- factor(
+  viajes_por_dia$day_of_week,
+  levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
+)
+
+ggplot(viajes_por_dia, aes(x = day_of_week, y = total_viajes, fill = member_casual)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = total_viajes), position = position_dodge(width=0.9),vjust=-0.5, size=4) +
+  labs(
+    title = "Distribución de viajes por día de la semana y tipo de usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x = "Día de la semana",
+    y = "Nº de viajes",
+    fill = "Tipo de usuario") +
+  theme_minimal() + 
+  theme(
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.text.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_blank())
 ```
 ```r
 ```
