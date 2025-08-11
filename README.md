@@ -282,7 +282,7 @@ trips_202407_202506 %>%
         panel.grid.major.y = element_line(color = "gray70", size = 0.7),
         panel.grid.major.x = element_blank())
 ```
-![Resumen del dataset](graphs/duracion_viaje_por_usuario.png)
+![Duracion media de los viajes de cada usuario](graphs/duracion_viaje_por_usuario.png)
 ```r
 #Numero total viajes por dia de la semana
 viajes_por_dia <- trips_202407_202506%>%
@@ -311,10 +311,51 @@ ggplot(viajes_por_dia, aes(x = day_of_week, y = total_viajes, fill = member_casu
     panel.grid.major.y = element_blank(),
     panel.grid.major.x = element_blank())
 ```
+![Numero de viajes por cada dia de la semana](graphs/viajes_por_semana.png)
 ```r
+#Numero de viajes por mes
+# Agrupar y contar viajes
+viajes_por_mes <- trips_202407_202506 %>%
+  group_by(month, member_casual) %>%
+  summarise(total_viajes = n(), duracion_media = mean(ride_length, na.rm = TRUE), .groups = "drop")
+#
+orden_meses <- c("07", "08", "09", "10", "11", "12", "01", "02", "03", "04", "05", "06")
+# Nombres en español
+nombres_meses <- c("Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+                   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio")
+ggplot(viajes_por_mes, aes(x = factor(month, levels = orden_meses), y = total_viajes, 
+       color = member_casual, group = member_casual)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = label_number(),
+        breaks = seq(0, max(viajes_por_mes$total_viajes), by = 50000)) +
+  scale_x_discrete(labels = nombres_meses) +
+  labs(title = "Viajes por mes y tipo de usuario", 
+       subtitle = "Desde julio de 2024 hasta junio de 2025",
+       x="", y = "Nº de viajes", color = "Tipo de usuario") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+        plot.background = element_rect(fill = "aliceblue"),
+        axis.title.y = element_text(margin = margin(r = 15)))
 ```
+![Numero de viajes por mes](graphs/viajes_por_mes.png)
 ```r
+ggplot(viajes_por_mes, aes(x = factor(month, levels = orden_meses), y = duracion_media, color = member_casual, group = member_casual)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = label_number()) +
+  scale_x_discrete(labels = nombres_meses, expand = expansion(add = 0.5)) +
+  labs(title = "Duración media del viaje por mes y usuario", 
+       subtitle = "Desde julio de 2024 hasta junio de 2025",
+       x = "", y = "Duración media (minutos)", color = "Tipo de usuario") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+        plot.background = element_rect(fill = "aliceblue"),
+        axis.title.y = element_text(margin = margin(r = 15)))
 ```
+![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)
 ```r
 ```
 
