@@ -81,6 +81,9 @@ library("dplyr")
 # summarytools: genera resúmenes estadísticos detallados y tablas descriptivas de forma rápida
 install.packages("summarytools")
 library("summarytools")
+
+library(scales)
+library(ggplot2)
 ```
 ### Lectura  
 Leemos los 12 archivos .csv con los datos correspondientes a cada mes y los asignamos a un objeto. Este objeto será un dataframe.
@@ -272,92 +275,125 @@ trips_202407_202506 %>%
   ggplot(aes(x = member_casual, y = avg_ride_length, fill = member_casual)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   geom_text(aes(label = round(avg_ride_length, 1)), vjust = -0.5, size = 5) +
-  labs(
-    title = "Duración promedio de viaje por tipo de usuario",
-       subtitle = "Desde julio de 2024 hasta junio de 2025", 
-       x = "Tipo de usuario", y = "Duracion media (minutos)") +
+  labs(title = "Duración promedio de viaje por tipo de usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025", 
+    x = "Tipo de usuario", y = "Duracion media (minutos)") +
   theme_minimal() + 
   theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-        plot.background = element_rect(fill = "aliceblue"),
-        panel.grid.major.y = element_line(color = "gray70", size = 0.7),
-        panel.grid.major.x = element_blank())
+    plot.background = element_rect(fill = "aliceblue"),
+    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+    panel.grid.major.x = element_blank())
 ```
 ![Duracion media de los viajes de cada usuario](graphs/duracion_viaje_por_usuario.png)
 ```r
 #Numero total viajes por dia de la semana
-viajes_por_dia <- trips_202407_202506%>%
+trips_202407_202506 %>%
   group_by(member_casual, day_of_week) %>%
-  summarise(total_viajes = n(), .groups = "drop")
-
-viajes_por_dia$day_of_week <- factor(
-  viajes_por_dia$day_of_week,
-  levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
-)
-
-ggplot(viajes_por_dia, aes(x = day_of_week, y = total_viajes, fill = member_casual)) +
+  summarise(total_viajes = n(), .groups = "drop") %>%
+  mutate(day_of_week = factor(day_of_week,
+    levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
+  ggplot(aes(x = day_of_week, y = total_viajes, fill = member_casual)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = total_viajes), position = position_dodge(width=0.9),vjust=-0.5, size=4) +
-  labs(
-    title = "Distribución de viajes por día de la semana y tipo de usuario",
+  geom_text(aes(label = total_viajes), position = position_dodge(width = 0.9),
+    vjust = -0.5, size = 4) +
+  labs(title = "Distribución de viajes por día de la semana y tipo de usuario",
     subtitle = "Desde julio de 2024 hasta junio de 2025",
     x = "Día de la semana",
     y = "Nº de viajes",
     fill = "Tipo de usuario") +
   theme_minimal() + 
-  theme(
-    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+  theme(plot.subtitle = element_text(margin = margin(b = 10)),
+    plot.title.position = "plot",
     plot.background = element_rect(fill = "aliceblue"),
     axis.text.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_blank())
+    axis.title.x = element_text(margin = margin(t = 7)),
+    panel.grid.major = element_blank())
 ```
 ![Numero de viajes por cada dia de la semana](graphs/viajes_por_semana.png)
 ```r
 #Numero de viajes por mes
 # Agrupar y contar viajes
-viajes_por_mes <- trips_202407_202506 %>%
-  group_by(month, member_casual) %>%
-  summarise(total_viajes = n(), duracion_media = mean(ride_length, na.rm = TRUE), .groups = "drop")
-#
 orden_meses <- c("07", "08", "09", "10", "11", "12", "01", "02", "03", "04", "05", "06")
-# Nombres en español
 nombres_meses <- c("Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
                    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio")
-ggplot(viajes_por_mes, aes(x = factor(month, levels = orden_meses), y = total_viajes, 
-       color = member_casual, group = member_casual)) +
+trips_202407_202506 %>% 
+  group_by(month, member_casual) %>% 
+  summarise(total_viajes = n(), .groups = "drop") %>% 
+  ggplot(aes(x = factor(month, levels = orden_meses), y = total_viajes, 
+    color = member_casual, group = member_casual)) +
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   scale_y_continuous(labels = label_number(),
-        breaks = seq(0, max(viajes_por_mes$total_viajes), by = 50000)) +
+    breaks = seq(0, max(viajes_por_mes$total_viajes), by = 50000)) +
   scale_x_discrete(labels = nombres_meses) +
   labs(title = "Viajes por mes y tipo de usuario", 
-       subtitle = "Desde julio de 2024 hasta junio de 2025",
-       x="", y = "Nº de viajes", color = "Tipo de usuario") +
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x="", y = "Nº de viajes", color = "Tipo de usuario") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-        plot.background = element_rect(fill = "aliceblue"),
-        axis.title.y = element_text(margin = margin(r = 15)))
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+    axis.title.y = element_text(margin = margin(r = 15)))
 ```
 ![Numero de viajes por mes](graphs/viajes_por_mes.png)
 ```r
-ggplot(viajes_por_mes, aes(x = factor(month, levels = orden_meses), y = duracion_media, color = member_casual, group = member_casual)) +
+#Duracion media del viaje por mes
+trips_202407_202506 %>% 
+  group_by(month, member_casual) %>% 
+  summarise(duracion_media = mean(ride_length, na.rm = TRUE), .groups = "drop") %>% 
+  ggplot(aes(x = factor(month, levels = orden_meses), y = duracion_media, 
+    color = member_casual, group = member_casual)) +
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   scale_y_continuous(labels = label_number()) +
   scale_x_discrete(labels = nombres_meses, expand = expansion(add = 0.5)) +
   labs(title = "Duración media del viaje por mes y usuario", 
-       subtitle = "Desde julio de 2024 hasta junio de 2025",
-       x = "", y = "Duración media (minutos)", color = "Tipo de usuario") +
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x = "", y = "Duración media (minutos)", color = "Tipo de usuario") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-        plot.background = element_rect(fill = "aliceblue"),
-        axis.title.y = element_text(margin = margin(r = 15)))
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+    axis.title.y = element_text(margin = margin(r = 15)))
 ```
 ![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)
 ```r
+# Viajes por tipo de bicicleta
+trips_202407_202506 %>% 
+  group_by(member_casual, rideable_type) %>%
+  summarise(num_viajes = n()) %>%
+  mutate(proporción = num_viajes / sum(num_viajes),
+    label_pos = cumsum(proporción) - proporción / 2) %>%
+  ggplot(aes(x = 2, y = proporción, fill = rideable_type)) +
+  geom_bar(stat = "identity", color = "white") +
+  coord_polar(theta = "y") +
+  facet_wrap(~ member_casual) +
+  xlim(0.5, 2.5) +
+  geom_text(aes(y = label_pos, label = scales::percent(proporción)), color = "white") +
+  labs(fill = "Tipo de bicicleta: ",
+    title = "Distribución de viajes por tipo de bicicleta para cada usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+    panel.grid = element_blank(),
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue", color = NA),
+    strip.text = element_text(size = 13) ,
+    axis.text = element_blank(),
+    axis.title = element_blank())
 ```
+
+```r
+```
+
+```r
+```
+
+```r
+```
+
 
 ```r
 library(skimr)
