@@ -386,12 +386,96 @@ trips_202407_202506 %>%
 ```
 
 ```r
+#Estaciones de inicio mas usadas
+top_start_stations_names <- trips_202407_202506 %>%
+  group_by(member_casual, start_station_name) %>%
+  summarise(total_viajes = n(), .groups = "drop") %>%
+  group_by(member_casual) %>%
+  slice_max(order_by = total_viajes, n = 100) %>%   # <-- slice_max en vez de slice_head
+  ungroup()gg
+## Estaciones con más volumen de viajes por usuario
+top_start_stations %>%
+  group_by(member_casual) %>%
+  slice_max(order_by = total_viajes, n = 10) %>%
+  ungroup() %>%
+  ggplot(aes(x = total_viajes,
+    y = reorder(start_station_name, total_viajes),
+    color = member_casual)) +
+  geom_line(aes(group = start_station_name)) +
+  geom_point(size = 5) +
+  geom_text(aes(label = total_viajes), hjust = -0.3, size = 3.5) +
+  facet_wrap(~ member_casual, scales = "free_y") +
+  labs(title = "Estaciones con más volumen de viajes por usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025", 
+    x = NULL,
+    y = NULL,
+    color = NULL) +
+  theme_minimal() +
+  theme(legend.position = "none",
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.title.x = element_text(hjust = 0.4, margin = margin(t = 15))) +
+  coord_cartesian(xlim = c(0, max(top_start_stations$total_viajes) * 1.15))
 ```
 
 ```r
+# Paso 2: Extraer una coordenada fija para cada estación (primer registro que coincida)
+estaciones_coords <- trips_202407_202506 %>%
+  filter(start_station_name %in% top_start_stations_names$start_station_name) %>%
+  distinct(start_station_name, .keep_all = TRUE) %>%
+  select(start_station_name, start_lat, start_lng)
+
+# Paso 3: Unir coordenadas a las estaciones top
+top_start_stations <- top_start_stations_names %>%
+  left_join(estaciones_coords, by = "start_station_name") %>%
+  mutate(tipo_usuario = member_casual)
+
+pal_tipo <- colorFactor(c("#F8766D", "#00BFC4"), domain = c("casual", "member"))
+
+leaflet(top_start_stations) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addCircleMarkers(
+    lng = ~start_lng,
+    lat = ~start_lat,
+    radius = ~sqrt(total_viajes) * 0.05,  # radio proporcional a viajes
+    color = ~pal_tipo(tipo_usuario),
+    stroke = TRUE,
+    fillOpacity = 0.7,
+    label = ~paste0(start_station_name, "<br>",
+      "Usuario: ", tipo_usuario, "<br>",
+      "Viajes: ", total_viajes)
+  )
 ```
 
 ```r
+#Viajes por hora
+viajes_por_hora <- trips_202407_202506 %>%
+  group_by(member_casual, start_hour = hour(started_at)) %>%
+  summarise(n_viajes = n(), .groups = "drop")
+
+ggplot(viajes_por_hora, aes(x = start_hour, y = n_viajes, color = member_casual)) +
+  geom_line(size = 1.2) +
+  scale_x_continuous(breaks = 0:23) +
+  labs(
+    title = "Viajes por hora del día según tipo de usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x = "Hora del día",
+    y = "Nº de viajes",
+    color = "Tipo de usuario"
+  ) +
+  scale_y_continuous(
+    labels = scales::comma,
+    breaks = scales::pretty_breaks(n = 10)  # n = número aproximado de divisiones
+  )+
+  theme_minimal() +
+  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+        plot.background = element_rect(fill = "aliceblue"),
+        axis.title.x = element_text(margin = margin(t = 15)),
+        axis.title.y = element_text(margin = margin(r = 15)),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "gray40", size = 0.8),
+        panel.grid.major = element_line(color = "gray90", size = 0.8))
+
 ```
 
 
