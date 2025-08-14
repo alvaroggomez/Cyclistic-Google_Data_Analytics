@@ -309,7 +309,7 @@ trips_202407_202506 %>%
     axis.title.x = element_text(margin = margin(t = 7)),
     panel.grid.major = element_blank())
 ```
-![Numero de viajes por cada dia de la semana](graphs/viajes_por_semana.png)
+![Numero de viajes por cada dia de la semana](graphs/viajes_por_dia.png)
 ```r
 #Numero de viajes por mes
 # Agrupar y contar viajes
@@ -334,7 +334,8 @@ trips_202407_202506 %>%
     plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
     plot.background = element_rect(fill = "aliceblue"),
     panel.grid.major.y = element_line(color = "gray70", size = 0.7),
-    axis.title.y = element_text(margin = margin(r = 15)))
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.line = element_line(color = "gray40", size = 0.8))
 ```
 ![Numero de viajes por mes](graphs/viajes_por_mes.png)
 ```r
@@ -356,9 +357,40 @@ trips_202407_202506 %>%
     plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
     plot.background = element_rect(fill = "aliceblue"),
     panel.grid.major.y = element_line(color = "gray70", size = 0.7),
-    axis.title.y = element_text(margin = margin(r = 15)))
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.line = element_line(color = "gray40", size = 0.8))
 ```
 ![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)
+```r
+# Gráfico de dispersión
+trips_202407_202506 %>%
+  group_by(month, member_casual) %>%
+  summarise(
+    total_viajes = n(),
+    duracion_media = mean(ride_length, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = total_viajes, y = duracion_media, color = member_casual)) +
+  geom_point(size = 4, alpha = 0.8) +
+  scale_x_continuous(labels = scales::comma) +
+  labs(
+    title = "Relación entre nº de viajes y duración media por mes",
+    subtitle = "Cada punto representa un mes",
+    x = "Número de viajes",
+    y = "Duración media (minutos)",
+    color = "Tipo de usuario"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.subtitle = element_text(margin = margin(b=10)),
+    plot.title.position = "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.title.x = element_text(margin = margin(t = 15)),
+    axis.line = element_line(color = "gray40", size = 0.8)
+  )
+```
+![Relacion_numero_viajes_duracion_media](graphs/relacion_viajes_duracion.png)
 ```r
 # Viajes por tipo de bicicleta
 trips_202407_202506 %>% 
@@ -384,7 +416,7 @@ trips_202407_202506 %>%
     axis.text = element_blank(),
     axis.title = element_blank())
 ```
-
+![distribucion_por_tipo_de_bici](graphs/distribucion_tipo_bici.png)
 ```r
 #Estaciones de inicio mas usadas
 top_start_stations_names <- trips_202407_202506 %>%
@@ -417,7 +449,7 @@ top_start_stations %>%
     axis.title.x = element_text(hjust = 0.4, margin = margin(t = 15))) +
   coord_cartesian(xlim = c(0, max(top_start_stations$total_viajes) * 1.15))
 ```
-
+![top10_estaciones_mas_usadas](graphs/estaciones_mas_usadas.png)
 ```r
 # Paso 2: Extraer una coordenada fija para cada estación (primer registro que coincida)
 estaciones_coords <- trips_202407_202506 %>%
@@ -446,14 +478,13 @@ leaflet(top_start_stations) %>%
       "Viajes: ", total_viajes)
   )
 ```
-
+![mapa_estaciones_mas_usadas](graphs/mapa_estaciones_mas_usadas.PNG)
 ```r
 #Viajes por hora
-viajes_por_hora <- trips_202407_202506 %>%
+trips_202407_202506 %>%
   group_by(member_casual, start_hour = hour(started_at)) %>%
-  summarise(n_viajes = n(), .groups = "drop")
-
-ggplot(viajes_por_hora, aes(x = start_hour, y = n_viajes, color = member_casual)) +
+  summarise(n_viajes = n(), .groups = "drop") %>%
+  ggplot(aes(x = start_hour, y = n_viajes, color = member_casual)) +
   geom_line(size = 1.2) +
   scale_x_continuous(breaks = 0:23) +
   labs(
@@ -465,19 +496,21 @@ ggplot(viajes_por_hora, aes(x = start_hour, y = n_viajes, color = member_casual)
   ) +
   scale_y_continuous(
     labels = scales::comma,
-    breaks = scales::pretty_breaks(n = 10)  # n = número aproximado de divisiones
-  )+
+    breaks = scales::pretty_breaks(n = 10)
+  ) +
   theme_minimal() +
-  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-        plot.background = element_rect(fill = "aliceblue"),
-        axis.title.x = element_text(margin = margin(t = 15)),
-        axis.title.y = element_text(margin = margin(r = 15)),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(color = "gray40", size = 0.8),
-        panel.grid.major = element_line(color = "gray90", size = 0.8))
-
+  theme(
+    plot.subtitle = element_text(margin = margin(b = 10)),
+    plot.title.position = "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.title.x = element_text(margin = margin(t = 15)),
+    axis.title.y = element_text(margin = margin(r = 15)),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "gray40", size = 0.8),
+    panel.grid.major = element_line(color = "gray90", size = 0.8)
+  )
 ```
-
+![viajes_por_mes](graphs/viajes_por_hora.png)
 
 ```r
 library(skimr)
