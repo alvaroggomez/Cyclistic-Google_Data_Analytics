@@ -264,223 +264,12 @@ Este resumen ha sido generado utilizando la función dfSummary() del paquete sum
 ![Resumen del dataset](dfSummary.png)
 
 ## 📈 Analizar 
-A través de estadísticas descriptivas y visualizaciones, se examinan aspectos como la duración de los viajes, los patrones de uso por día de la semana, y las rutas más comunes, con el fin de entender mejor cómo y cuándo utilizan el servicio ambos tipos de usuarios.
+A través de estadísticas descriptivas y visualizaciones, se examinan aspectos como la duración de los viajes, los patrones de uso por día de la semana, y las rutas más comunes, con el fin de entender mejor cómo y cuándo utilizan el servicio ambos tipos de usuarios.  
+Todos los gráficos presentados estarán segmentados según el tipo de usuario ya que el principal objetivo es entender las diferencias en comportamiento entre los distintos usuarios. Esto nos permitirá comparar patrones, tendencias y características específicas para cada grupo.  
 
-
+### Distribución de viajes por hora del día  
+Primero analizaremos cómo se distribuyen los viajes a lo largo del día.
 ```r
-#Duracion media de viaje por tipo de usuario
-trips_202407_202506 %>% 
-  group_by(member_casual) %>% 
-  summarise(avg_ride_length = mean(ride_length)) %>% 
-  ggplot(aes(x = member_casual, y = avg_ride_length, fill = member_casual)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-  geom_text(aes(label = round(avg_ride_length, 1)), vjust = -0.5, size = 5) +
-  labs(title = "Duración promedio de viaje por tipo de usuario",
-    subtitle = "Desde julio de 2024 hasta junio de 2025", 
-    x = "Tipo de usuario", y = "Duracion media (minutos)") +
-  theme_minimal() + 
-  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-    plot.background = element_rect(fill = "aliceblue"),
-    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
-    panel.grid.major.x = element_blank())
-```
-![Duracion media de los viajes de cada usuario](graphs/duracion_viaje_por_usuario.png)
-```r
-#Numero total viajes por dia de la semana
-trips_202407_202506 %>%
-  group_by(member_casual, day_of_week) %>%
-  summarise(total_viajes = n(), .groups = "drop") %>%
-  mutate(day_of_week = factor(day_of_week,
-    levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
-  ggplot(aes(x = day_of_week, y = total_viajes, fill = member_casual)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = total_viajes), position = position_dodge(width = 0.9),
-    vjust = -0.5, size = 4) +
-  labs(title = "Distribución de viajes por día de la semana y tipo de usuario",
-    subtitle = "Desde julio de 2024 hasta junio de 2025",
-    x = "Día de la semana",
-    y = "Nº de viajes",
-    fill = "Tipo de usuario") +
-  theme_minimal() + 
-  theme(plot.subtitle = element_text(margin = margin(b = 10)),
-    plot.title.position = "plot",
-    plot.background = element_rect(fill = "aliceblue"),
-    axis.text.y = element_blank(),
-    axis.title.x = element_text(margin = margin(t = 7)),
-    panel.grid.major = element_blank())
-```
-![Numero de viajes por cada dia de la semana](graphs/viajes_por_dia.png)
-```r
-#Numero de viajes por mes
-# Agrupar y contar viajes
-orden_meses <- c("07", "08", "09", "10", "11", "12", "01", "02", "03", "04", "05", "06")
-nombres_meses <- c("Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-                   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio")
-trips_202407_202506 %>% 
-  group_by(month, member_casual) %>% 
-  summarise(total_viajes = n(), .groups = "drop") %>% 
-  ggplot(aes(x = factor(month, levels = orden_meses), y = total_viajes, 
-    color = member_casual, group = member_casual)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  scale_y_continuous(labels = label_number(),
-    breaks = seq(0, max(viajes_por_mes$total_viajes), by = 50000)) +
-  scale_x_discrete(labels = nombres_meses) +
-  labs(title = "Viajes por mes y tipo de usuario", 
-    subtitle = "Desde julio de 2024 hasta junio de 2025",
-    x="", y = "Nº de viajes", color = "Tipo de usuario") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-    plot.background = element_rect(fill = "aliceblue"),
-    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
-    axis.title.y = element_text(margin = margin(r = 15)),
-    axis.line = element_line(color = "gray40", size = 0.8))
-```
-![Numero de viajes por mes](graphs/viajes_por_mes.png)
-```r
-#Duracion media del viaje por mes
-trips_202407_202506 %>% 
-  group_by(month, member_casual) %>% 
-  summarise(duracion_media = mean(ride_length, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(x = factor(month, levels = orden_meses), y = duracion_media, 
-    color = member_casual, group = member_casual)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  scale_y_continuous(labels = label_number()) +
-  scale_x_discrete(labels = nombres_meses, expand = expansion(add = 0.5)) +
-  labs(title = "Duración media del viaje por mes y usuario", 
-    subtitle = "Desde julio de 2024 hasta junio de 2025",
-    x = "", y = "Duración media (minutos)", color = "Tipo de usuario") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-    plot.background = element_rect(fill = "aliceblue"),
-    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
-    axis.title.y = element_text(margin = margin(r = 15)),
-    axis.line = element_line(color = "gray40", size = 0.8))
-```
-![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)
-```r
-# Gráfico de dispersión
-trips_202407_202506 %>%
-  group_by(month, member_casual) %>%
-  summarise(
-    total_viajes = n(),
-    duracion_media = mean(ride_length, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  ggplot(aes(x = total_viajes, y = duracion_media, color = member_casual)) +
-  geom_point(size = 4, alpha = 0.8) +
-  scale_x_continuous(labels = scales::comma) +
-  labs(
-    title = "Relación entre nº de viajes y duración media por mes",
-    subtitle = "Cada punto representa un mes",
-    x = "Número de viajes",
-    y = "Duración media (minutos)",
-    color = "Tipo de usuario"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.subtitle = element_text(margin = margin(b=10)),
-    plot.title.position = "plot",
-    plot.background = element_rect(fill = "aliceblue"),
-    axis.title.y = element_text(margin = margin(r = 15)),
-    axis.title.x = element_text(margin = margin(t = 15)),
-    axis.line = element_line(color = "gray40", size = 0.8)
-  )
-```
-![Relacion_numero_viajes_duracion_media](graphs/relacion_viajes_duracion.png)
-```r
-# Viajes por tipo de bicicleta
-trips_202407_202506 %>% 
-  group_by(member_casual, rideable_type) %>%
-  summarise(num_viajes = n()) %>%
-  mutate(proporción = num_viajes / sum(num_viajes),
-    label_pos = cumsum(proporción) - proporción / 2) %>%
-  ggplot(aes(x = 2, y = proporción, fill = rideable_type)) +
-  geom_bar(stat = "identity", color = "white") +
-  coord_polar(theta = "y") +
-  facet_wrap(~ member_casual) +
-  xlim(0.5, 2.5) +
-  geom_text(aes(y = label_pos, label = scales::percent(proporción)), color = "white") +
-  labs(fill = "Tipo de bicicleta: ",
-    title = "Distribución de viajes por tipo de bicicleta para cada usuario",
-    subtitle = "Desde julio de 2024 hasta junio de 2025") +
-  theme_minimal() +
-  theme(legend.position = "bottom",
-    panel.grid = element_blank(),
-    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-    plot.background = element_rect(fill = "aliceblue", color = NA),
-    strip.text = element_text(size = 13) ,
-    axis.text = element_blank(),
-    axis.title = element_blank())
-```
-![distribucion_por_tipo_de_bici](graphs/distribucion_tipo_bici.png)
-```r
-#Estaciones de inicio mas usadas
-top_start_stations_names <- trips_202407_202506 %>%
-  group_by(member_casual, start_station_name) %>%
-  summarise(total_viajes = n(), .groups = "drop") %>%
-  group_by(member_casual) %>%
-  slice_max(order_by = total_viajes, n = 100) %>%   # <-- slice_max en vez de slice_head
-  ungroup()gg
-## Estaciones con más volumen de viajes por usuario
-top_start_stations %>%
-  group_by(member_casual) %>%
-  slice_max(order_by = total_viajes, n = 10) %>%
-  ungroup() %>%
-  ggplot(aes(x = total_viajes,
-    y = reorder(start_station_name, total_viajes),
-    color = member_casual)) +
-  geom_line(aes(group = start_station_name)) +
-  geom_point(size = 5) +
-  geom_text(aes(label = total_viajes), hjust = -0.3, size = 3.5) +
-  facet_wrap(~ member_casual, scales = "free_y") +
-  labs(title = "Estaciones con más volumen de viajes por usuario",
-    subtitle = "Desde julio de 2024 hasta junio de 2025", 
-    x = NULL,
-    y = NULL,
-    color = NULL) +
-  theme_minimal() +
-  theme(legend.position = "none",
-    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
-    plot.background = element_rect(fill = "aliceblue"),
-    axis.title.x = element_text(hjust = 0.4, margin = margin(t = 15))) +
-  coord_cartesian(xlim = c(0, max(top_start_stations$total_viajes) * 1.15))
-```
-![top10_estaciones_mas_usadas](graphs/estaciones_mas_usadas.png)
-```r
-# Paso 2: Extraer una coordenada fija para cada estación (primer registro que coincida)
-estaciones_coords <- trips_202407_202506 %>%
-  filter(start_station_name %in% top_start_stations_names$start_station_name) %>%
-  distinct(start_station_name, .keep_all = TRUE) %>%
-  select(start_station_name, start_lat, start_lng)
-
-# Paso 3: Unir coordenadas a las estaciones top
-top_start_stations <- top_start_stations_names %>%
-  left_join(estaciones_coords, by = "start_station_name") %>%
-  mutate(tipo_usuario = member_casual)
-
-pal_tipo <- colorFactor(c("#F8766D", "#00BFC4"), domain = c("casual", "member"))
-
-leaflet(top_start_stations) %>%
-  addProviderTiles("CartoDB.Positron") %>%
-  addCircleMarkers(
-    lng = ~start_lng,
-    lat = ~start_lat,
-    radius = ~sqrt(total_viajes) * 0.05,  # radio proporcional a viajes
-    color = ~pal_tipo(tipo_usuario),
-    stroke = TRUE,
-    fillOpacity = 0.7,
-    label = ~paste0(start_station_name, "<br>",
-      "Usuario: ", tipo_usuario, "<br>",
-      "Viajes: ", total_viajes)
-  )
-```
-![mapa_estaciones_mas_usadas](graphs/mapa_estaciones_mas_usadas.PNG)
-```r
-#Viajes por hora
 trips_202407_202506 %>%
   group_by(member_casual, start_hour = hour(started_at)) %>%
   summarise(n_viajes = n(), .groups = "drop") %>%
@@ -510,7 +299,241 @@ trips_202407_202506 %>%
     panel.grid.major = element_line(color = "gray90", size = 0.8)
   )
 ```
-![viajes_por_mes](graphs/viajes_por_hora.png)
+![viajes_por_mes](graphs/viajes_por_hora.png)  
+El número de viajes para los usuarios casual tiene un crecimiento bastante constante hasta las 5 de la tarde, por el contrario, para los usuarios con membresía vemos dos picos claros. Es posible que muchos de estos usuarios hagan uso de las bicicletas para desplazarse al trabajo, ya que los picos coinciden con las horas típicas de inicio y fin de la jornada laboral.
+
+### Número de viajes por día de la semana  
+Analizaremos la distribución del número total de viajes que hace cada tipo de usurio para cada día de la semana.
+```r
+trips_202407_202506 %>%
+  group_by(member_casual, day_of_week) %>%
+  summarise(total_viajes = n(), .groups = "drop") %>%
+  mutate(day_of_week = factor(day_of_week,
+    levels = c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
+  ggplot(aes(x = day_of_week, y = total_viajes, fill = member_casual)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = total_viajes), position = position_dodge(width = 0.9),
+    vjust = -0.5, size = 4) +
+  labs(title = "Distribución de viajes por día de la semana y tipo de usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x = "Día de la semana",
+    y = "Nº de viajes",
+    fill = "Tipo de usuario") +
+  theme_minimal() + 
+  theme(plot.subtitle = element_text(margin = margin(b = 10)),
+    plot.title.position = "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.text.y = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 7)),
+    panel.grid.major = element_blank())
+```
+![Numero de viajes por cada dia de la semana](graphs/viajes_por_dia.png)  
+
+
+### Duración de los viajes para cada usuario  
+Vamos a calcular la duración media de los viajes para cada tipo de usuario (casual y member).  
+```r
+trips_202407_202506 %>% 
+  group_by(member_casual) %>% 
+  summarise(avg_ride_length = mean(ride_length)) %>% 
+  ggplot(aes(x = member_casual, y = avg_ride_length, fill = member_casual)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  geom_text(aes(label = round(avg_ride_length, 1)), vjust = -0.5, size = 5) +
+  labs(title = "Duración promedio de viaje por tipo de usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025", 
+    x = "Tipo de usuario", y = "Duracion media (minutos)") +
+  theme_minimal() + 
+  theme(plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+    panel.grid.major.x = element_blank())
+```
+![Duracion media de los viajes de cada usuario](graphs/duracion_viaje_por_usuario.png)  
+
+### Duración media de los viajes por mes  
+Ahora calcularemos el promedio de los viajes pero por mes. 
+```r
+trips_202407_202506 %>% 
+  group_by(month, member_casual) %>% 
+  summarise(duracion_media = mean(ride_length, na.rm = TRUE), .groups = "drop") %>% 
+  ggplot(aes(x = factor(month, levels = orden_meses), y = duracion_media, 
+    color = member_casual, group = member_casual)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = label_number()) +
+  scale_x_discrete(labels = nombres_meses, expand = expansion(add = 0.5)) +
+  labs(title = "Duración media del viaje por mes y usuario", 
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x = "", y = "Duración media (minutos)", color = "Tipo de usuario") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.line = element_line(color = "gray40", size = 0.8))
+```
+![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)
+
+### Número de viajes realizados cada mes  
+Visualizaremos en una gráfica lineal la evolución del número de viajes realizados mes a mes.
+```r
+# Agrupar y contar viajes
+orden_meses <- c("07", "08", "09", "10", "11", "12", "01", "02", "03", "04", "05", "06")
+nombres_meses <- c("Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+                   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio")
+
+trips_202407_202506 %>% 
+  group_by(month, member_casual) %>% 
+  summarise(total_viajes = n(), .groups = "drop") %>% 
+  ggplot(aes(x = factor(month, levels = orden_meses), y = total_viajes, 
+    color = member_casual, group = member_casual)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = label_number(),
+    breaks = seq(0, max(viajes_por_mes$total_viajes), by = 50000)) +
+  scale_x_discrete(labels = nombres_meses) +
+  labs(title = "Viajes por mes y tipo de usuario", 
+    subtitle = "Desde julio de 2024 hasta junio de 2025",
+    x="", y = "Nº de viajes", color = "Tipo de usuario") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    panel.grid.major.y = element_line(color = "gray70", size = 0.7),
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.line = element_line(color = "gray40", size = 0.8))
+```
+![Numero de viajes por mes](graphs/viajes_por_mes.png)
+
+### Relación entre nº de viajes y duración media mensual  
+Ahora podemos ver la relación entre los valores de las dos visualizaciones anteriores en un gráfico de dispersión.  
+```r
+trips_202407_202506 %>%
+  group_by(month, member_casual) %>%
+  summarise(
+    total_viajes = n(),
+    duracion_media = mean(ride_length, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = total_viajes, y = duracion_media, color = member_casual)) +
+  geom_point(size = 4, alpha = 0.8) +
+  scale_x_continuous(labels = scales::comma) +
+  labs(
+    title = "Relación entre nº de viajes y duración media por mes",
+    subtitle = "Cada punto representa un mes",
+    x = "Número de viajes",
+    y = "Duración media (minutos)",
+    color = "Tipo de usuario"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.subtitle = element_text(margin = margin(b=10)),
+    plot.title.position = "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.title.x = element_text(margin = margin(t = 15)),
+    axis.line = element_line(color = "gray40", size = 0.8)
+  )
+```
+![Relacion_numero_viajes_duracion_media](graphs/relacion_viajes_duracion.png)
+
+### Distribución de viajes según el tipo de bicicleta  
+Realizaremos un gráfico que nos permitirá visualizar qué proporción del total de viajes corresponde a cada tipo de bicicleta.
+```r
+trips_202407_202506 %>% 
+  group_by(member_casual, rideable_type) %>%
+  summarise(num_viajes = n()) %>%
+  mutate(proporción = num_viajes / sum(num_viajes),
+    label_pos = cumsum(proporción) - proporción / 2) %>%
+  ggplot(aes(x = 2, y = proporción, fill = rideable_type)) +
+  geom_bar(stat = "identity", color = "white") +
+  coord_polar(theta = "y") +
+  facet_wrap(~ member_casual) +
+  xlim(0.5, 2.5) +
+  geom_text(aes(y = label_pos, label = scales::percent(proporción)), color = "white") +
+  labs(fill = "Tipo de bicicleta: ",
+    title = "Distribución de viajes por tipo de bicicleta para cada usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+    panel.grid = element_blank(),
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue", color = NA),
+    strip.text = element_text(size = 13) ,
+    axis.text = element_blank(),
+    axis.title = element_blank())
+```
+![distribucion_por_tipo_de_bici](graphs/distribucion_tipo_bici.png)
+
+### Estaciones con mayor volumen de viajes  
+Identificaremos las estaciones que registran el mayor volumen de viajes.
+```r
+#Estaciones de inicio mas usadas
+top_start_stations_names <- trips_202407_202506 %>%
+  group_by(member_casual, start_station_name) %>%
+  summarise(total_viajes = n(), .groups = "drop") %>%
+  group_by(member_casual) %>%
+  slice_max(order_by = total_viajes, n = 100) %>%   # <-- slice_max en vez de slice_head
+  ungroup()gg
+#Estaciones con más volumen de viajes por usuario
+top_start_stations %>%
+  group_by(member_casual) %>%
+  slice_max(order_by = total_viajes, n = 10) %>%
+  ungroup() %>%
+  ggplot(aes(x = total_viajes,
+    y = reorder(start_station_name, total_viajes),
+    color = member_casual)) +
+  geom_line(aes(group = start_station_name)) +
+  geom_point(size = 5) +
+  geom_text(aes(label = total_viajes), hjust = -0.3, size = 3.5) +
+  facet_wrap(~ member_casual, scales = "free_y") +
+  labs(title = "Estaciones con más volumen de viajes por usuario",
+    subtitle = "Desde julio de 2024 hasta junio de 2025", 
+    x = NULL,
+    y = NULL,
+    color = NULL) +
+  theme_minimal() +
+  theme(legend.position = "none",
+    plot.subtitle = element_text(margin = margin(b=10)), plot.title.position =  "plot",
+    plot.background = element_rect(fill = "aliceblue"),
+    axis.title.x = element_text(hjust = 0.4, margin = margin(t = 15))) +
+  coord_cartesian(xlim = c(0, max(top_start_stations$total_viajes) * 1.15))
+```
+![top10_estaciones_mas_usadas](graphs/estaciones_mas_usadas.png)
+
+### Mapa de estaciones más utilizadas  
+Se representarán en un mapa georreferenciado los puntos con mayor volumen de actividad.
+```r
+#Extraer una coordenada fija para cada estación (primer registro que coincida)
+estaciones_coords <- trips_202407_202506 %>%
+  filter(start_station_name %in% top_start_stations_names$start_station_name) %>%
+  distinct(start_station_name, .keep_all = TRUE) %>%
+  select(start_station_name, start_lat, start_lng)
+
+#Unir coordenadas a las estaciones top
+top_start_stations <- top_start_stations_names %>%
+  left_join(estaciones_coords, by = "start_station_name") %>%
+  mutate(tipo_usuario = member_casual)
+
+pal_tipo <- colorFactor(c("#F8766D", "#00BFC4"), domain = c("casual", "member"))
+
+leaflet(top_start_stations) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addCircleMarkers(
+    lng = ~start_lng,
+    lat = ~start_lat,
+    radius = ~sqrt(total_viajes) * 0.05,  # radio proporcional a viajes
+    color = ~pal_tipo(tipo_usuario),
+    stroke = TRUE,
+    fillOpacity = 0.7,
+    label = ~paste0(start_station_name, "<br>",
+      "Usuario: ", tipo_usuario, "<br>",
+      "Viajes: ", total_viajes)
+  )
+```
+![mapa_estaciones_mas_usadas](graphs/mapa_estaciones_mas_usadas.PNG)
+
 
 ```r
 library(skimr)
