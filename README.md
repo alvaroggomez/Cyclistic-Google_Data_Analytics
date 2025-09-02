@@ -328,7 +328,7 @@ trips_202407_202506 %>%
     panel.grid.major = element_blank())
 ```
 ![Numero de viajes por cada dia de la semana](graphs/viajes_por_dia.png)  
-
+Los usuarios con membresía anual usan las bicicletas principalmente entre semana, probablemente para transporte diario. En cambio, los usuarios casuales las usan más los viernes y fines de semana, lo que sugiere un uso recreativo o turístico.
 
 ### Duración de los viajes para cada usuario  
 Vamos a calcular la duración media de los viajes para cada tipo de usuario (casual y member).  
@@ -349,6 +349,7 @@ trips_202407_202506 %>%
     panel.grid.major.x = element_blank())
 ```
 ![Duracion media de los viajes de cada usuario](graphs/duracion_viaje_por_usuario.png)  
+Vemos que la duración de viaje de los usuarios casuales es el doble que la de los usuarios miembros. Los miembros tienden a hacer viajes más cortos y directos, posiblemente como parte de su rutina diaria.
 
 ### Duración media de los viajes por mes  
 Ahora calcularemos el promedio de los viajes pero por mes. 
@@ -373,7 +374,8 @@ trips_202407_202506 %>%
     axis.title.y = element_text(margin = margin(r = 15)),
     axis.line = element_line(color = "gray40", size = 0.8))
 ```
-![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)
+![Duracion viajes por mes](graphs/duracion_viaje_por_mes.png)  
+En invierno se observa la menor duración de viaje, posiblemente esto es debido por el clima frío. Sin embargo en los usuarios con membresía el promedio de viaje es bastante estable a lo largo del año y en los casual hay mucha diferencia entre los meses de verano y los de invierno. Esto refuerza la idea de que su uso, en los usuarios casual, es recreativo o turístico.
 
 ### Número de viajes realizados cada mes  
 Visualizaremos en una gráfica lineal la evolución del número de viajes realizados mes a mes.
@@ -404,7 +406,8 @@ trips_202407_202506 %>%
     axis.title.y = element_text(margin = margin(r = 15)),
     axis.line = element_line(color = "gray40", size = 0.8))
 ```
-![Numero de viajes por mes](graphs/viajes_por_mes.png)
+![Numero de viajes por mes](graphs/viajes_por_mes.png)  
+También vemos en este gráfico una diferencia notable entre los meses de verano y los de invierno. Chicago es una ciudad con inviernos fríos, por tanto el clima extremo causa un descenso considerable del número de viajes.
 
 ### Relación entre nº de viajes y duración media mensual  
 Ahora podemos ver la relación entre los valores de las dos visualizaciones anteriores en un gráfico de dispersión.  
@@ -436,7 +439,8 @@ trips_202407_202506 %>%
     axis.line = element_line(color = "gray40", size = 0.8)
   )
 ```
-![Relacion_numero_viajes_duracion_media](graphs/relacion_viajes_duracion.png)
+![Relacion_numero_viajes_duracion_media](graphs/relacion_viajes_duracion.png)  
+Como ya vimos en el gráfico anterior, el uso en cantidad varía estacionalmente. Los usuarios con membresía mantienen una duración de viaje bastante constante y los usuarios casuales muestran una gran variabilidad. 
 
 ### Distribución de viajes según el tipo de bicicleta  
 Realizaremos un gráfico que nos permitirá visualizar qué proporción del total de viajes corresponde a cada tipo de bicicleta.
@@ -464,19 +468,20 @@ trips_202407_202506 %>%
     axis.text = element_blank(),
     axis.title = element_blank())
 ```
-![distribucion_por_tipo_de_bici](graphs/distribucion_tipo_bici.png)
+![distribucion_por_tipo_de_bici](graphs/distribucion_tipo_bici.png)  
+Uso muy similar entre ambos grupos. Solo hay una ligera diferencia en el uso de scooters, lo que puede sugerir que los casuales están más dispuestos a experimentar, posiblemente por curiosidad. Las bicicletas eléctricas superan el 59% de los viajes, lo que muestra una clara preferencia por la asistencia eléctrica, más comodidad y menos esfuerzo físico.
 
 ### Estaciones con mayor volumen de viajes  
 Identificaremos las estaciones que registran el mayor volumen de viajes.
 ```r
-#Estaciones de inicio mas usadas
+#Estaciones de inicio mas usadas (100 mas usadas)
 top_start_stations_names <- trips_202407_202506 %>%
   group_by(member_casual, start_station_name) %>%
   summarise(total_viajes = n(), .groups = "drop") %>%
   group_by(member_casual) %>%
   slice_max(order_by = total_viajes, n = 100) %>%   # <-- slice_max en vez de slice_head
   ungroup()gg
-#Estaciones con más volumen de viajes por usuario
+#Estaciones con más volumen de viajes por usuario (top 10)
 top_start_stations %>%
   group_by(member_casual) %>%
   slice_max(order_by = total_viajes, n = 10) %>%
@@ -500,7 +505,8 @@ top_start_stations %>%
     axis.title.x = element_text(hjust = 0.4, margin = margin(t = 15))) +
   coord_cartesian(xlim = c(0, max(top_start_stations$total_viajes) * 1.15))
 ```
-![top10_estaciones_mas_usadas](graphs/estaciones_mas_usadas.png)
+![top10_estaciones_mas_usadas](graphs/estaciones_mas_usadas.png)  
+Ninguna estación aparece en el top 10 de ambos grupos, esto no tiene porque ser muy relevante ya que hay casi 700 estaciones, pero puede indicar que puntos de partida preferidos por cada grupo son distintos. La diferencia entre las estaciones más usadas por usuarios member es menor, lo que refuerza la idea de un uso funcional, como transporte diario. Pese a que se realizan muchos más viajes por usuarios con membresía, vemos que las dos estaciones mas usadas por casual tienen muchos mas viajes. Hay una mayor concentración de viajes por parte de los casuals y es probable que estas estaciones estén ubicadas en zonas turísticas, parques o áreas recreativas.
 
 ### Mapa de estaciones más utilizadas  
 Se representarán en un mapa georreferenciado los puntos con mayor volumen de actividad.
@@ -532,7 +538,14 @@ leaflet(top_start_stations) %>%
       "Viajes: ", total_viajes)
   )
 ```
-![mapa_estaciones_mas_usadas](graphs/mapa_estaciones_mas_usadas.PNG)
+![mapa_estaciones_mas_usadas](graphs/mapa_estaciones_mas_usadas.PNG)  
+Aquí vemos representadas en el mapa las 100 estaciones de inicio más usadas por cada tipo de usuario. Muchas de ellas si son comunes a ambos miembros, sin embargo, podemos observar como las estaciones con mayor afluencia de usuarios casuales están ubicadas en zonas más turísticas, cerca de parques y a la orilla del lago Michigan.
+
+## 🤝 Compartir  
+En este apartado se resumen los insights más relevantes obtenidos del estudio, ofreciendo recomendaciones basadas en el análisis de los patrones de uso de los diferentes tipos de usuarios:  
+**\- Patrones horarios diferentes**
+- Los usuarios casual usan el servicio de manera más dispersa a lo largo del día, sin horarios punta claros.
+- Los usuarios con membresía muestran un patrón de uso concentrado en las horas pico típicas de desplazamiento laboral, con aumentos claros en la mañana y final de la tarde.
 
 
 ```r
