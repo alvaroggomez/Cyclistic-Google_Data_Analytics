@@ -567,11 +567,20 @@ En este apartado se resumen los insights más relevantes obtenidos del estudio, 
 ## 🎯 Actuar
 Concretaremos los hallazgos del análisis en recomendaciones prácticas. Se presentan varias sugerencias para mejorar el servicio, baasadas en los patrones de uso detectados. 
 ### 📌Conclusiones
-\- Los usuarios con **membresía** usan la bicicleta principalmente como **medio de transporte diario**, con viajes más cortos, directos y frecuentes entre semana. Su actividad disminuye los fines de semana y las estaciones más utilizadas se concentran en el centro de la ciudad.  
-\- Los usuarios **casuales** hacen un uso más **recreativo**, con viajes más largos, especialmente en verano. Hay un aumento del uso los viernes y durante el fin de semana, y se concentran en zonas turísticas y recreativas.  
+- Los usuarios con **membresía** usan la bicicleta principalmente como **medio de transporte diario**, con viajes más cortos, directos y frecuentes entre semana. Su actividad disminuye los fines de semana y las estaciones más utilizadas se concentran en el centro de la ciudad.  
+- Los usuarios **casuales** hacen un uso más **recreativo**, con viajes más largos, especialmente en verano. Hay un aumento del uso los viernes y durante el fin de semana, y se concentran en zonas turísticas y recreativas.  
 ### 💡 Sugerencias 
-\- Lo primero es realizar una mejor segmentación de los usuarios casuales. Dado que gran parte de los usuarios member utilizan el servicio para ir al trabajo, es probable que exista un segmento dentro de los usuarios casuales que también podrían beneficiarse de una suscipción si se les incentivara a darle ese mismo uso cotidiano.  
-
+- Dado que gran parte de los usuarios member utilizan el servicio para ir al trabajo, es probable que exista un segmento dentro de los usuarios casuales que también podrían beneficiarse de una suscipción si se les incentivara a darle ese mismo uso cotidiano.  
+Para atraer a estos usuarios se pueden realizar campañas dirigidas a trayectos laborales o de rutina, colocando publicidad cerca de estaciones céntricas y residenciales, promocionando la membresía como una opción económica, ecológica y cómoda para ir al trabajo.   
+- Algunos usuarios no estarán interesados en una suscripción anual, quizás sería buena idea ofrecer otro tipo de membresías, orientadas a turistas o visitantes frecuentes:
+    - Membresías temporales, como pases semanales o de fin de semana, a precio reducido.  
+    - Planes recreativo con beneficios específicos, que ofrezcan tarifas reducidas en viajes largos o descuentos por alquilar los viernes, sábados y domingos..  
+    - Paquetes turísticos o colaboraciones locales, por ejemplo: "Incluye 5 días de Divvy Pass con la reserva de hotel".
+- Si para el uso de la bici es necesario un registro o descarga de app, se podría identificar usuarios casuales con uso frecuente y enviar ofertas personalizadas. Notificar el número de viajes que ya ha realizado y añadir recordatorios de ahorro mediante la membresía. 
+- Los usuarios con membresía ya gozan de ciertos beneficios, pero se podrían añadir los siguientes para aumentar su valor y atraer a usuarios casuales:
+    - Reducción aún mayor de tarifas para bicicletas eléctricas y scooters.
+    - Sistema de recompensas por uso frecuente. Cada cierto número de viajes se otorga una extensión de la membresía, participación en sorteos de productos, descuentos en tiendas o cafeterías asociadas.  
+    - Reserva anticipada de bicicleta. Permitir reservar con hasta 10 minutos de antelación. Ideal para dar más seguridad, especialmente en horas punta.
 
 
 ```r
