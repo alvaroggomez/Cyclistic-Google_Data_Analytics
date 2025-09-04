@@ -1,4 +1,4 @@
-# Cyclistic-Google_Data_Analytics
+# Google Data Analytics - Estudio de Caso: Cyclistic
 
 Este repositorio documenta el proyecto final del Certificado profesional de Análisis de Datos de Google.  
 
@@ -8,9 +8,9 @@ El objetivo principal es aplicar el proceso completo de análisis para resolver 
 ## 🎬 Escenario
 Como analista de datos junior en el equipo de marketing de una empresa de bicicletas compartidas en Chicago, denominada Cyclistic, tu tarea consiste en analizar las diferencias de uso entre los **usuarios ocasionales** y los **miembros anuales**.  
 
-La directora de marketing considera que aumentar el número de suscipciones anuales es clave para el éxito del negocio.  
+La directora de marketing considera que aumentar el número de suscripciones anuales es clave para el éxito del negocio.  
 
-El objetivo es identificar patrones de comportamiento que sirvan de base para una nueva estrategia de marketing enfocada en convertir usuarios casuales en suscriptores. Las recomensaciones deberán estar respaldadas por datos sólidos y visualizaciones profesionales, ya que serán presentadas ante el equipo ejecutivo para su aprobación.
+El objetivo es identificar patrones de comportamiento que sirvan de base para una nueva estrategia de marketing enfocada en convertir usuarios casuales en suscriptores. Las recomendaciones deberán estar respaldadas por datos sólidos y visualizaciones profesionales, ya que serán presentadas ante el equipo ejecutivo para su aprobación.
 
 ### 💼 Personajes y equipos
 
@@ -20,13 +20,13 @@ El objetivo es identificar patrones de comportamiento que sirvan de base para un
 - **Equipo ejecutivo**: Orientado a los detalles, decidirán si se aprueba el programa de marketing recomendado.
 
 ### 🏙️ Sobre la empresa
-Cyclistic es un programa de bicibletas compartidas lanzado en 2016 en la ciudad de Chicago. A lo largo de los años ha crecido hasta contar con más de **5.800 bicicletas geolocalizadas y 692 estaciones**, lo que permite a los usuarios recoger y devolver bicicletas en cualquier punto.  
+Cyclistic es un programa de bicicletas compartidas lanzado en 2016 en la ciudad de Chicago. A lo largo de los años ha crecido hasta contar con más de **5.800 bicicletas geolocalizadas y 692 estaciones**, lo que permite a los usuarios recoger y devolver bicicletas en cualquier punto.  
 
 Su estrategia de marketing se ha centrado en atraer públicos amplios mediante una oferta flexible de tarifas: abonos de un viaje, abonos de día completo y membresías anuales. Los clientes esporádicos (pases únicos o diarios) son considerados usuarios casuales, mientras que quienes adquieren la membresía anual son miembros de Cyclistic.  
 
 Aunque esta flexibilidad ha atraído a muchos clientes, los analistas financieros han concluido que los miembros anuales son significativamente más rentables. Por eso, en lugar de crear una campaña de marketing dirigida a nuevos clientes, Lily Moreno cree que existe una gran oportunidad para **convertir usuarios ocasionales en socios**, aprovechando que estos ya conocen y utilizan el servicio.  
 
-Para lograrlo, es clave entender mejor las diferencias entre ambos perfiles, qué motivaría a un usuario casual a adquirir una membresía y qué papel puede jugar el marketing digital en esa transicción. El análisis de datos histórico de viajes será fundamental para identificar patrones y diseñar estrategias efectivas.
+Para lograrlo, es clave entender mejor las diferencias entre ambos perfiles, qué motivaría a un usuario casual a adquirir una membresía y qué papel puede jugar el marketing digital en esa transición. El análisis de datos histórico de viajes será fundamental para identificar patrones y diseñar estrategias efectivas.
 
 ## ❓ Preguntar  
 En esta fase se define claramente el problema de negocio que se busca resolver mediante el análisis de datos.  
@@ -51,40 +51,18 @@ Descripción de los datos recopilados, su origen, estructura y organización
 Se utilizaron datos históricos de viajes en bicicleta del sistema [Divvy](https://divvy-tripdata.s3.amazonaws.com/index.html), originalmente recopilados por Motivate International Inc. y actualmente gestionados por Lyft Bikes and Scooters, LLC.  
 Los datos corresponden al periodo entre **julio de 2024 y junio de 2025**. Esta información es pública, anónima y de libre uso, con restricciones relacionadas a la privacidad de los usuarios.  
 ### Estructura de los datos  
-Los datos están organizados en archivos mensuales en formato .csv, cada uno de los cuales contiene registros individuales de cada viaje: id del viaje, tipo de bicicleta (clasica,eléctrica o scooter eléctrica), fecha y hora de inicio y fin, nombre, identificador y coordenadas de la estación de partida y de llegada, y tipo de usuario (casual o miembro).  
+Los datos están organizados en archivos mensuales en formato .csv, cada uno de los cuales contiene registros individuales de cada viaje: id del viaje, tipo de bicicleta (clásica, eléctrica o scooter eléctrica), fecha y hora de inicio y fin, nombre, identificador y coordenadas de la estación de partida y de llegada, y tipo de usuario (casual o miembro).  
 ### Consideraciones sobre privacidad y licencia  
 Los datos son públicos y anónimos, proporcionados bajo una licencia que permite su uso y análisis para fines legítimos. Está prohibido identificar usuarios o vender los datos como conjunto independiente. Para más detalles, consultar la [licencia](https://divvybikes.com/data-license-agreement).  
 ### Verificación e integridad
-Se realizó una revisión preliminar para asegurar que todos los archivos estuvieran completos, sin columnas faltantes ni datos corruptos evidentes. También se verificó que las categorias y formatos de campos clave (fechas, duración, tipo de usuario) fueran consistentes y adecuados para continuar el análisis.
+Se realizó una revisión preliminar para asegurar que todos los archivos estuvieran completos, sin columnas faltantes ni datos corruptos evidentes. También se verificó que las categorías y formatos de campos clave (fechas, duración, tipo de usuario) fueran consistentes y adecuados para continuar el análisis.
 ### Utilidad para el análisis  
-Estos datos provienen de una fuente oficial, son confiables y permiten identificar patrones de uso entre usuarios ocasionales y miembros anuales, lo cual es esencial para responder a la pregunta de negocio planteda en la fase anterior.
+Estos datos provienen de una fuente oficial, son confiables y permiten identificar patrones de uso entre usuarios ocasionales y miembros anuales, lo cual es esencial para responder a la pregunta de negocio planteada en la fase anterior.
 
 ## 🛠️ Procesar  
 Descripción del tratamiento y limpieza de los datos para prepararlos para el análisis.  
 La herramienta usada para manipular los datos es RStudio.  
 
-### Bibliotecas  
-Durante esta fase se utilizaron las siguientes bibliotecas:
-```r
-# colección de paquetes para importar, manipular y visualizar datos
-install.packages("tidyverse")
-library("tidyverse")
-# facilita el trabajo con fechas y horas
-install.packages("lubridate")
-library("lubridate")
-# janitor: útil para limpiar nombres de columnas y detectar inconsistencias
-install.packages("janitor")
-library("janitor")
-# dplyr: parte de tidyverse, permite filtrar, seleccionar y transformar datos fácilmente
-install.packages("dplyr")
-library("dplyr")
-# summarytools: genera resúmenes estadísticos detallados y tablas descriptivas de forma rápida
-install.packages("summarytools")
-library("summarytools")
-
-library(scales)
-library(ggplot2)
-```
 ### Lectura  
 Leemos los 12 archivos .csv con los datos correspondientes a cada mes y los asignamos a un objeto. Este objeto será un dataframe.
 ```r
@@ -102,7 +80,7 @@ trips_202505 <- read.csv("202505-divvy-tripdata.csv")
 trips_202506 <- read.csv("202506-divvy-tripdata.csv")
 ```
 ### Unión 
-Lo ideal es trabajar con un único dataset, por lo que procederemos a unificar todos en uno solo. Sin embargo, antes será necesario comprobar que compartan las mismas columnas y tipos de datos.  
+Lo ideal es trabajar con un único dataset, por lo que procederemos a unificarlos en uno solo. Sin embargo, antes será necesario comprobar que compartan las mismas columnas y tipos de datos.  
 Primero, verificamos que los 12 dataframes tengan exactamente las mismas columnas, en el mismo orden.
 ```r
 # Guardar los nombres de las columnas de los conjuntos de datos
@@ -116,7 +94,7 @@ all_same <- all(sapply(column_names, function(x) identical(x, column_names[[1]])
 # Si todos tienen las mismas columnas y en el mismo orden, devolverá TRUE
 print(all_same)
 ```
-Ahora toca comprobar para cada columna que contenga el mismo tipo de dato en cada archivo.
+Luego, comprobaremos que cada columna contenga el mismo tipo de dato en cada archivo.
 ```r
 # Guardar en una lista el tipo de cada columna de cada data frame
 column_types <- list(
@@ -132,6 +110,10 @@ print(all_types_same)
 ```
 Una vez hemos comprobado que todos los conjuntos de datos tienen las mismas columnas, en el mismo orden y con el mismo tipo de datos, procedemos a unirlos en un único data frame.
 ```r
+# Primero instalamos el paquete dplyr, el cual permite filtrar, seleccionar y transformar datos fácilmente
+install.packages("dplyr")
+library("dplyr")
+# Unir en un único data frame
 trips_202407_202506 <- bind_rows(
     trips_202407,trips_202408,trips_202409,trips_202410,trips_202411,trips_202412,
     trips_202501,trips_202502,trips_202503,trips_202504,trips_202505,trips_202506
@@ -203,7 +185,6 @@ sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end
 
 # No hay, por tanto procedemos a borrar las filas con valores nulos para las columnas end_lat y end_lng
 trips_202407_202506 <-  trips_202407_202506[!is.na(trips_202407_202506$end_lat), ]
-
 ```
 En el caso de los viajes que no cuentan con información en los campos de nombres e id de estaciones (tanto de inicio como de fin), se optará por eliminarlos del conjunto principal de datos, previamente almacenándolos en un dataset aparte por si en el futuro se decida intentar su recuperación.  
 La única opción para completar esta información sería a partir de las coordenadas geográficas. No obstante, esta tarea resulta compleja, ya que las coordenadas no son completamente consistentes: no todos los viajes asociados a una misma estación comparten exactamente los mismos valores de latitud y longitud, lo que dificulta su identificación automática.
@@ -211,6 +192,9 @@ La única opción para completar esta información sería a partir de las coorde
 # Guardar los registros con campos vacíos en un dataset
 viajes_incompletos <- trips_202407_202506 %>% 
   filter(is.na(start_station_name) | is.na(end_station_name))
+# Cargar libería tidyr (limpia y transforma datos), necesaria para la funcion drop_na
+install.packages("tidyr")
+library("tidyr")
 # Eliminar las filas con valores vacíos del dataset principal
 trips_202407_202506 <- drop_na(trips_202407_202506) 
 ```
@@ -249,7 +233,7 @@ trips_202407_202506$start_station_name <- gsub("\\*$", "", trips_202407_202506$s
 trips_202407_202506$end_station_name <- gsub("\\*$", "", trips_202407_202506$end_station_name)
 ```
 También se ha observado que algunos IDs están asociados a más de una estación. En ciertos casos, se debe a pequeñas variaciones en la nomenclatura del nombre de la estación, es decir, probablemente sea la misma; sin embargo, en otros, las diferencias en los nombres son mayores o incluso completamente distintas. Los cambios en los nombres asociados a un mismo ID pueden deberse a múltiples causas. Por ejemplo, dado que el dataset reúne varios conjuntos de datos temporales, es posible que un mismo ID corresponda a una estación en un mes y a otra diferente en otro período. Debido a esta incertidumbre, no se realizarán más modificaciones en los nombres de estaciones.      
-NOTA: Anotar que una misma estación puede tener más de un id distinto, esto se debe a que se han cambiado los ids para algunas de ellas. Por ejemplo, para Yates Blvd & 93rd St tenemos el id 20237 y CHI00856.  
+> NOTA: Una misma estación puede tener más de un id distinto, esto se debe a que se han cambiado los ids para algunas de ellas. Por ejemplo, para Yates Blvd & 93rd St tenemos el id 20237 y CHI00856.  
     
 Ahora se procederá a eliminar aquellos viajes que presentan errores en su duración, tales como aquellos con duración negativa, así como los viajes cortos — de menos de 2 minutos — que no se dirigen a una estación distinta. Se entiende que estos casos corresponden a viajes cancelados, devoluciones de bicicleta o cambios debido a algún fallo.
 ```r
@@ -261,7 +245,7 @@ Se verificó la existencia de viajes con duraciones extremadamente largas, se en
 Tras completar el proceso de limpieza y transformación, se obtiene un conjunto de datos estructurado y listo para el análisis. A continuación, se presenta un resumen descriptivo de las variables incluidas en el dataset final, que permite verificar la integridad, el tipo de datos y la distribución general de los valores.  
 
 Este resumen ha sido generado utilizando la función dfSummary() del paquete summarytools, que proporciona una visión rápida y clara del contenido del dataset.
-![Resumen del dataset](dfSummary.png)
+![Resumen del dataset](graphs/dfSummary.png)
 
 ## 📈 Analizar 
 A través de estadísticas descriptivas y visualizaciones, se examinan aspectos como la duración de los viajes, los patrones de uso por día de la semana, y las rutas más comunes, con el fin de entender mejor cómo y cuándo utilizan el servicio ambos tipos de usuarios.  
@@ -270,6 +254,17 @@ Todos los gráficos presentados estarán segmentados según el tipo de usuario y
 ### *Distribución de viajes por hora del día*  
 Primero analizaremos cómo se distribuyen los viajes a lo largo del día.
 ```r
+# libreria ggplot2: creacion de graficos y visualizaciones
+install.packages("ggplo2")
+library("ggplo2")
+# libreria lubridate: manejo sencillo de fechas y horas
+install.packages("lubridate")
+library("lubridate")
+# libreria scales: formateo y personalizacion de ejes en graficos
+install.packages("scales")
+library("scales")
+
+# Grafico para distribuir viajes a lo largo del dia
 trips_202407_202506 %>%
   group_by(member_casual, start_hour = hour(started_at)) %>%
   summarise(n_viajes = n(), .groups = "drop") %>%
@@ -522,8 +517,14 @@ top_start_stations <- top_start_stations_names %>%
   left_join(estaciones_coords, by = "start_station_name") %>%
   mutate(tipo_usuario = member_casual)
 
+# Librearia leaflet para crear mapas interactivos
+install.packages("leaflet")
+library("leaflet")
+
+# Asignar colores especificos a cada usuario
 pal_tipo <- colorFactor(c("#F8766D", "#00BFC4"), domain = c("casual", "member"))
 
+# Crear mapa
 leaflet(top_start_stations) %>%
   addProviderTiles("CartoDB.Positron") %>%
   addCircleMarkers(
@@ -565,7 +566,7 @@ En este apartado se resumen los insights más relevantes obtenidos del estudio, 
 - Los usuarios casuales se concentran más en estaciones cercanas a lugares turísticos o recreativos, destacando especialmente la estación Streeter Dr. & Grand Ave., situada junto al muelle del lago y a poca distancia de Milleniun Park, dos de los lugares más visitados de la ciudad.
 
 ## 🎯 Actuar
-Concretaremos los hallazgos del análisis en recomendaciones prácticas. Se presentan varias sugerencias para mejorar el servicio, baasadas en los patrones de uso detectados. 
+Para finalizar este caso de estudio analítico, concretaremos los hallazgos del análisis en recomendaciones prácticas. Se presentan varias sugerencias para mejorar el servicio, baasadas en los patrones de uso detectados. 
 ### 📌Conclusiones
 - Los usuarios con **membresía** usan la bicicleta principalmente como **medio de transporte diario**, con viajes más cortos, directos y frecuentes entre semana. Su actividad disminuye los fines de semana y las estaciones más utilizadas se concentran en el centro de la ciudad.  
 - Los usuarios **casuales** hacen un uso más **recreativo**, con viajes más largos, especialmente en verano. Hay un aumento del uso los viernes y durante el fin de semana, y se concentran en zonas turísticas y recreativas.  
@@ -581,19 +582,3 @@ Para atraer a estos usuarios se pueden realizar campañas dirigidas a trayectos 
     - Reducción aún mayor de tarifas para bicicletas eléctricas y scooters.
     - Sistema de recompensas por uso frecuente. Cada cierto número de viajes se otorga una extensión de la membresía, participación en sorteos de productos, descuentos en tiendas o cafeterías asociadas.  
     - Reserva anticipada de bicicleta. Permitir reservar con hasta 10 minutos de antelación. Ideal para dar más seguridad, especialmente en horas punta.
-
-
-```r
-library(skimr)
-skim(trips_202407_202506)
-
-install.packages("DataExplorer")
-library(DataExplorer)
-create_report(df)  
-```
-```r
-
-```
-```r
-
-```
