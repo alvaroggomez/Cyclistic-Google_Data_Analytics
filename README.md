@@ -32,7 +32,7 @@ Para lograrlo, es clave entender mejor las diferencias entre ambos perfiles, qu�
 En esta fase se define claramente el problema de negocio que se busca resolver mediante el análisis de datos.  
 
 ### Tarea Empresarial  
-Cyclistic busca aumentar el número de miembros anuales, ya que estos generan más ingresos que los usuarios ocasionales. El objetivo es entender cómo se comportan ambos grupos de usuarios y en qué se diferencian.  
+Cyclistic busca aumentar el número de miembros anuales, en vista de que estos generan más ingresos que los usuarios ocasionales. El objetivo es entender cómo se comportan ambos grupos de usuarios y en qué se diferencian.  
 El análisis permitirá identificar patrones de comportamiento clave que puedan usarse para diseñar campañas de marketing digital mejor segmentadas, aumentando la probabilidad de que usuarios ocasionales se conviertan en miembros anuales.
 
 ### Pregunta clave a responder
@@ -187,7 +187,7 @@ sum(!is.na(trips_202407_202506$end_station_name) & is.na(trips_202407_202506$end
 trips_202407_202506 <-  trips_202407_202506[!is.na(trips_202407_202506$end_lat), ]
 ```
 En el caso de los viajes que no cuentan con información en los campos de nombres e id de estaciones (tanto de inicio como de fin), se optará por eliminarlos del conjunto principal de datos, previamente almacenándolos en un dataset aparte por si en el futuro se decida intentar su recuperación.  
-La única opción para completar esta información sería a partir de las coordenadas geográficas. No obstante, esta tarea resulta compleja, ya que las coordenadas no son completamente consistentes: no todos los viajes asociados a una misma estación comparten exactamente los mismos valores de latitud y longitud, lo que dificulta su identificación automática.
+La única opción para completar esta información sería a partir de las coordenadas geográficas. No obstante, esta tarea resulta compleja, dado que las coordenadas no son completamente consistentes: no todos los viajes asociados a una misma estación comparten exactamente los mismos valores de latitud y longitud, lo que dificulta su identificación automática.
 ```r
 # Guardar los registros con campos vacíos en un dataset
 viajes_incompletos <- trips_202407_202506 %>% 
@@ -198,7 +198,7 @@ library("tidyr")
 # Eliminar las filas con valores vacíos del dataset principal
 trips_202407_202506 <- drop_na(trips_202407_202506) 
 ```
-Se detectaron que algunas estaciones aparecen registradas con dos variantes de nombre: una con un asterisco (*) y otra sin él. Esto generará duplicados en el análisis, ya que R las trata como estaciones diferentes aunque correspondan a la misma ubicación física.  
+Se detectó que algunas estaciones aparecen registradas con dos variantes de nombre: una con un asterisco (*) y otra sin él. Esto generará duplicados en el análisis, ya que R las trata como estaciones diferentes aunque correspondan a la misma ubicación física.  
 Para evitar esta confusión y unificar la información, se procederá a identificar todas las estaciones cuyos nombres terminan con un asterisco, verificar si existe una versión sin asterisco asociada al mismo id de estación y eliminar el asterisco para consolidar todas las variantes en una sola representación estándar.
 ```r
 # obtener los IDs con nombre que termina en asterisco
@@ -249,7 +249,7 @@ Este resumen ha sido generado utilizando la función dfSummary() del paquete sum
 
 ## 📈 Analizar 
 A través de estadísticas descriptivas y visualizaciones, se examinan aspectos como la duración de los viajes, los patrones de uso por día de la semana, y las rutas más comunes, con el fin de entender mejor cómo y cuándo utilizan el servicio ambos tipos de usuarios.  
-Todos los gráficos presentados estarán segmentados según el tipo de usuario ya que el principal objetivo es entender las diferencias en comportamiento entre los distintos usuarios. Esto nos permitirá comparar patrones, tendencias y características específicas para cada grupo.  
+Todos los gráficos presentados estarán segmentados según el tipo de usuario, puesto que el principal objetivo es entender las diferencias en comportamiento entre los distintos usuarios. Esto nos permitirá comparar patrones, tendencias y características específicas para cada grupo.  
 
 ### *Distribución de viajes por hora del día*  
 Primero analizaremos cómo se distribuyen los viajes a lo largo del día.
@@ -295,10 +295,10 @@ trips_202407_202506 %>%
   )
 ```
 ![viajes_por_mes](graphs/viajes_por_hora.png)  
-El número de viajes para los usuarios casual tiene un crecimiento bastante constante hasta las 5 de la tarde, por el contrario, para los usuarios con membresía vemos dos picos claros. Es posible que muchos de estos usuarios hagan uso de las bicicletas para desplazarse al trabajo, ya que los picos coinciden con las horas típicas de inicio y fin de la jornada laboral.
+El número de viajes para los usuarios casuales tiene un crecimiento bastante constante hasta las 5 de la tarde, por el contrario, para los usuarios con membresía vemos dos picos claros. Es posible que muchos de estos usuarios hagan uso de las bicicletas para desplazarse al trabajo, ya que los picos coinciden con las horas típicas de inicio y fin de la jornada laboral.
 
 ### *Número de viajes por día de la semana*  
-Analizaremos la distribución del número total de viajes que hace cada tipo de usurio para cada día de la semana.
+Analizaremos la distribución del número total de viajes que hace cada tipo de usuario para cada día de la semana.
 ```r
 trips_202407_202506 %>%
   group_by(member_casual, day_of_week) %>%
@@ -501,7 +501,7 @@ top_start_stations %>%
   coord_cartesian(xlim = c(0, max(top_start_stations$total_viajes) * 1.15))
 ```
 ![top10_estaciones_mas_usadas](graphs/estaciones_mas_usadas.png)  
-Ninguna estación aparece en el top 10 de ambos grupos, esto no tiene porque ser muy relevante ya que hay casi 700 estaciones, pero puede indicar que puntos de partida preferidos por cada grupo son distintos. La diferencia entre las estaciones más usadas por usuarios member es menor, lo que refuerza la idea de un uso funcional, como transporte diario. Pese a que se realizan muchos más viajes por usuarios con membresía, vemos que las dos estaciones mas usadas por casual tienen muchos mas viajes. Hay una mayor concentración de viajes por parte de los casuals y es probable que estas estaciones estén ubicadas en zonas turísticas, parques o áreas recreativas.
+Ninguna estación aparece en el top 10 de ambos grupos, esto no tiene por qué ser muy relevante, ya que hay casi 700 estaciones, pero puede indicar que puntos de partida preferidos por cada grupo son distintos. La diferencia entre las estaciones más usadas por usuarios member es menor, lo que refuerza la idea de un uso funcional, como transporte diario. Pese a que se realizan muchos más viajes por usuarios con membresía, vemos que las dos estaciones más usadas por casual tienen muchos mas viajes. Hay una mayor concentración de viajes por parte de los casuals y es probable que estas estaciones estén ubicadas en zonas turísticas, parques o áreas recreativas.
 
 ### *Mapa de estaciones más utilizadas*
 Se representarán en un mapa georreferenciado los puntos con mayor volumen de actividad.
@@ -545,12 +545,12 @@ Aquí vemos representadas en el mapa las 100 estaciones de inicio más usadas po
 ## 🤝 Compartir  
 En este apartado se resumen los insights más relevantes obtenidos del estudio, ofreciendo recomendaciones basadas en el análisis de los patrones de uso de los diferentes tipos de usuarios:    
 #### \- Patrones horarios diferentes
-- Los usuarios casual usan el servicio de manera más dispersa a lo largo del día, sin horarios punta claros.
+- Los usuarios casuales usan el servicio de manera más dispersa a lo largo del día, sin horarios punta claros.
 - Los usuarios con membresía muestran un patrón de uso concentrado en las horas pico típicas de desplazamiento laboral, con aumentos claros en la mañana y final de la tarde.
 
 #### \- Comportamiento semanal
 - Miembros mantienen el número de viajes relativamente constantes de lunes a jueves, con una ligera disminución los viernes y una caída más pronunciada durante el fin de semana.
-- En contraste, el mayor uso en los usuarios casuales se da durante los viernes y el fin de semana, alcanzando su punto mácimo los sábados.
+- En contraste, el mayor uso en los usuarios casuales se da durante los viernes y el fin de semana, alcanzando su punto máximo los sábados.
 
 #### \- Patrones estacionales y climáticos
 - Ambos grupos muestran una gran disminución de viajes durante los meses fríos, algo normal debido al duro clima de la ciudad en invierno.
@@ -563,19 +563,19 @@ En este apartado se resumen los insights más relevantes obtenidos del estudio, 
 
 #### \- Distribución geográfica
 - Las principales estaciones usadas por los miembros están situadas en el centro de la ciudad, lo que refleja un uso vinculado a la movilidad diaria y a la cercanía a zonas de oficinas.  
-- Los usuarios casuales se concentran más en estaciones cercanas a lugares turísticos o recreativos, destacando especialmente la estación Streeter Dr. & Grand Ave., situada junto al muelle del lago y a poca distancia de Milleniun Park, dos de los lugares más visitados de la ciudad.
+- Los usuarios casuales se concentran más en estaciones cercanas a lugares turísticos o recreativos, destacando especialmente la estación Streeter Dr. & Grand Ave., situada junto al muelle del lago y a poca distancia de Millenniun Park, dos de los lugares más visitados de la ciudad.
 
 ## 🎯 Actuar
-Para finalizar este caso de estudio analítico, concretaremos los hallazgos del análisis en recomendaciones prácticas. Se presentan varias sugerencias para mejorar el servicio, baasadas en los patrones de uso detectados. 
+Para finalizar este caso de estudio analítico, concretaremos los hallazgos del análisis en recomendaciones prácticas. Se presentan varias sugerencias para mejorar el servicio, basadas en los patrones de uso detectados. 
 ### 📌Conclusiones
 - Los usuarios con **membresía** usan la bicicleta principalmente como **medio de transporte diario**, con viajes más cortos, directos y frecuentes entre semana. Su actividad disminuye los fines de semana y las estaciones más utilizadas se concentran en el centro de la ciudad.  
 - Los usuarios **casuales** hacen un uso más **recreativo**, con viajes más largos, especialmente en verano. Hay un aumento del uso los viernes y durante el fin de semana, y se concentran en zonas turísticas y recreativas.  
 ### 💡 Sugerencias 
-- Dado que gran parte de los usuarios member utilizan el servicio para ir al trabajo, es probable que exista un segmento dentro de los usuarios casuales que también podrían beneficiarse de una suscipción si se les incentivara a darle ese mismo uso cotidiano.  
+- Dado que gran parte de los usuarios member utilizan el servicio para ir al trabajo, es probable que exista un segmento dentro de los usuarios casuales que también podrían beneficiarse de una suscripción si se les incentivara a darle ese mismo uso cotidiano.  
 Para atraer a estos usuarios se pueden realizar campañas dirigidas a trayectos laborales o de rutina, colocando publicidad cerca de estaciones céntricas y residenciales, promocionando la membresía como una opción económica, ecológica y cómoda para ir al trabajo.   
 - Algunos usuarios no estarán interesados en una suscripción anual, quizás sería buena idea ofrecer otro tipo de membresías, orientadas a turistas o visitantes frecuentes:
     - Membresías temporales, como pases semanales o de fin de semana, a precio reducido.  
-    - Planes recreativo con beneficios específicos, que ofrezcan tarifas reducidas en viajes largos o descuentos por alquilar los viernes, sábados y domingos..  
+    - Plan recreativo con beneficios específicos, que ofrezcan tarifas reducidas en viajes largos o descuentos por alquilar los viernes, sábados y domingos..  
     - Paquetes turísticos o colaboraciones locales, por ejemplo: "Incluye 5 días de Divvy Pass con la reserva de hotel".
 - Si para el uso de la bici es necesario un registro o descarga de app, se podría identificar usuarios casuales con uso frecuente y enviar ofertas personalizadas. Notificar el número de viajes que ya ha realizado y añadir recordatorios de ahorro mediante la membresía. 
 - Los usuarios con membresía ya gozan de ciertos beneficios, pero se podrían añadir los siguientes para aumentar su valor y atraer a usuarios casuales:
